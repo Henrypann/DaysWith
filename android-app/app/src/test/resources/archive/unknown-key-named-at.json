@@ -1,0 +1,336 @@
+{
+  "id": "unknown-key-named-at",
+  "description": "Inside an unknown field, the key at is not a timestamp. Its value is an object on the envelope and inside the value. Only the global integer rule applies, so count and byteCount stay integers and the objects are kept.",
+  "requireSymmetry": true,
+  "base": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {
+          "label": {
+            "value": {
+              "at": {
+                "kind": "object"
+              },
+              "count": 2,
+              "byteCount": 12
+            },
+            "edit": {
+              "counter": 1,
+              "at": 1700000000000,
+              "deviceID": "device-iphone"
+            },
+            "at": {
+              "nested": true
+            }
+          }
+        },
+        "title": {
+          "value": "Morning",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        }
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "local": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "Edited",
+          "edit": {
+            "counter": 2,
+            "at": 1700000002000,
+            "deviceID": "device-oppo"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {
+          "label": {
+            "value": {
+              "at": {
+                "kind": "object"
+              },
+              "count": 2,
+              "byteCount": 12
+            },
+            "edit": {
+              "counter": 1,
+              "at": 1700000000000,
+              "deviceID": "device-iphone"
+            },
+            "at": {
+              "nested": true
+            }
+          }
+        },
+        "title": {
+          "value": "Morning",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        }
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "remote": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {
+          "label": {
+            "value": {
+              "at": {
+                "kind": "object"
+              },
+              "count": 2,
+              "byteCount": 12
+            },
+            "edit": {
+              "counter": 1,
+              "at": 1700000000000,
+              "deviceID": "device-iphone"
+            },
+            "at": {
+              "nested": true
+            }
+          }
+        },
+        "title": {
+          "value": "Morning",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        }
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "expected": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "Edited",
+          "edit": {
+            "counter": 2,
+            "at": 1700000002000,
+            "deviceID": "device-oppo"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {
+          "label": {
+            "value": {
+              "at": {
+                "kind": "object"
+              },
+              "count": 2,
+              "byteCount": 12
+            },
+            "edit": {
+              "counter": 1,
+              "at": 1700000000000,
+              "deviceID": "device-iphone"
+            },
+            "at": {
+              "nested": true
+            }
+          }
+        },
+        "title": {
+          "value": "Morning",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "mediaOverflow": false
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "expectedOrder": {
+    "records": [
+      "rec-1"
+    ],
+    "assets": []
+  }
+}

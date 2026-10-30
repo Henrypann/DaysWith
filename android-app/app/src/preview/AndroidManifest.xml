@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <!-- A separate local-only test app: no production network or restored cloud configuration. -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <application android:allowBackup="false" android:dataExtractionRules="@xml/preview_data_extraction_rules"
+        android:fullBackupContent="false" tools:replace="android:allowBackup,android:dataExtractionRules,android:fullBackupContent">
+        <activity android:name=".MainActivity" tools:node="remove" />
+        <activity android:name=".preview.PreviewActivity" android:windowSoftInputMode="adjustResize" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

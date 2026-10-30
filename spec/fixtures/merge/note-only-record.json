@@ -1,0 +1,175 @@
+{
+  "base": {
+    "assets": [],
+    "extensions": {},
+    "items": [],
+    "records": [],
+    "resources": [],
+    "version": 3
+  },
+  "description": "iPhone adds a live note-only record with an empty title and no media. OPPO is unchanged. The complete record remains in both merge orders.",
+  "expected": {
+    "assets": [],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": []
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-note",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "A quiet afternoon worth remembering."
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "outfitConstraintOverflow": false,
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [],
+    "version": 3
+  },
+  "expectedOrder": {
+    "assets": [],
+    "records": [
+      "rec-note"
+    ]
+  },
+  "id": "note-only-record",
+  "local": {
+    "assets": [],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": []
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-note",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "A quiet afternoon worth remembering."
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [],
+    "version": 3
+  },
+  "remote": {
+    "assets": [],
+    "extensions": {},
+    "items": [],
+    "records": [],
+    "resources": [],
+    "version": 3
+  },
+  "requireSymmetry": true
+}

@@ -1,0 +1,213 @@
+{
+  "id": "purge-at-first-publish-boundary",
+  "kind": "purge",
+  "now": 1706048000000,
+  "description": "now equals purgeAfter, which is firstPublishedAt plus 30 days. The tombstone was already published, so purge omits the record and its media.",
+  "published": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": true
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-a"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Base note"
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Coat day"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "deletedAt": 1700000000000,
+            "firstPublishedAt": 1703456000000,
+            "purgeAfter": 1706048000000
+          }
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-a",
+        "objectKey": "objects/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "originalFilename": "a.jpg",
+        "role": "photo",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "version": 3
+  },
+  "snapshot": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": true
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-a"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Base note"
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Coat day"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "deletedAt": 1700000000000,
+            "firstPublishedAt": 1703456000000,
+            "purgeAfter": 1706048000000
+          }
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-a",
+        "objectKey": "objects/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "originalFilename": "a.jpg",
+        "role": "photo",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "version": 3
+  },
+  "expected": {
+    "assets": [],
+    "extensions": {},
+    "records": [],
+    "resources": [],
+    "version": 3
+  }
+}

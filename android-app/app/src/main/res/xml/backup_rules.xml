@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  allowBackup stays true. On API 31+ false would skip cloud backup only;
+  device transfer would still run. On API 29–30 false skips the legacy full
+  backup. These excludes are what drop the device id and the database.
+  The writer device id and AES-GCM storage-connection.enc credential binding live only under no_backup. The Room files are excluded
+  too: a restored archive-v3.db would bring another phone's sync cursor.
+-->
+<full-backup-content>
+    <exclude domain="root" path="no_backup" />
+    <exclude domain="file" path="pending-media/" />
+    <exclude domain="database" path="archive-v3.db" />
+    <exclude domain="database" path="archive-v3.db-wal" />
+    <exclude domain="database" path="archive-v3.db-shm" />
+    <exclude domain="database" path="archive-v3.db-journal" />
+</full-backup-content>

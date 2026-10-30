@@ -1,0 +1,261 @@
+{
+  "id": "known-field-omitted-deleted",
+  "description": "A known field changed on one side and omitted on the other. The present envelope wins with conflict deleted true. The unknown sibling key stays. Missing the envelope does not fail closed.",
+  "requireSymmetry": true,
+  "base": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "title": {
+          "value": "Morning",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        }
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "local": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {}
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "remote": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "title": {
+          "value": "Evening",
+          "edit": {
+            "counter": 2,
+            "at": 1700000002000,
+            "deviceID": "device-oppo"
+          },
+          "origin": "kept"
+        }
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "expected": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "title": {
+          "value": "Evening",
+          "edit": {
+            "counter": 2,
+            "at": 1700000002000,
+            "deviceID": "device-oppo"
+          },
+          "conflict": {
+            "deleted": true
+          },
+          "origin": "kept"
+        },
+        "mediaOverflow": false
+      }
+    ],
+    "assets": [],
+    "resources": [],
+    "extensions": {}
+  },
+  "expectedOrder": {
+    "records": [
+      "rec-1"
+    ],
+    "assets": []
+  }
+}

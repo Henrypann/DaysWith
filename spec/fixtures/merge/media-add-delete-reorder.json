@@ -1,0 +1,1517 @@
+{
+  "base": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-b"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-c",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-c"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-d",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-d"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-e",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-e"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a",
+            "asset-b",
+            "asset-c"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-mixed",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a",
+            "asset-b",
+            "asset-c"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-reorder",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-add",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      },
+      {
+        "assetID": "asset-b",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-b",
+        "objectKey": "objects/7b/7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637",
+        "originalFilename": "asset-b.jpg",
+        "role": "photo",
+        "sha256": "7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637"
+      },
+      {
+        "assetID": "asset-c",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-c",
+        "objectKey": "objects/11/111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1",
+        "originalFilename": "asset-c.jpg",
+        "role": "photo",
+        "sha256": "111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1"
+      },
+      {
+        "assetID": "asset-d",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-d",
+        "objectKey": "objects/96/969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8",
+        "originalFilename": "asset-d.jpg",
+        "role": "photo",
+        "sha256": "969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8"
+      },
+      {
+        "assetID": "asset-e",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-e",
+        "objectKey": "objects/42/42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694",
+        "originalFilename": "asset-e.jpg",
+        "role": "photo",
+        "sha256": "42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694"
+      }
+    ],
+    "version": 3
+  },
+  "description": "Media membership keeps both sides' additions and applies either side's deletions. Order comes from the only side that reordered, or from the later reorder when both did. Additions with no reorder append after the base order, earlier edit stamp first.",
+  "expected": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-b"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-c",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-c"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-d",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-d"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-e",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-e"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000005000,
+            "counter": 2,
+            "deviceID": "device-oppo"
+          },
+          "value": [
+            "asset-a",
+            "asset-b",
+            "asset-d",
+            "asset-c"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-add",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "outfitConstraintOverflow": false,
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "conflict": {
+            "edit": {
+              "at": 1700000009000,
+              "counter": 2,
+              "deviceID": "device-oppo"
+            },
+            "value": [
+              "asset-b",
+              "asset-c",
+              "asset-a"
+            ]
+          },
+          "edit": {
+            "at": 1700000001000,
+            "counter": 3,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-c",
+            "asset-a",
+            "asset-b"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-reorder",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "outfitConstraintOverflow": false,
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000002000,
+            "counter": 2,
+            "deviceID": "device-oppo"
+          },
+          "value": [
+            "asset-c",
+            "asset-a",
+            "asset-e",
+            "asset-d"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-mixed",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "outfitConstraintOverflow": false,
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      },
+      {
+        "assetID": "asset-b",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-b",
+        "objectKey": "objects/7b/7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637",
+        "originalFilename": "asset-b.jpg",
+        "role": "photo",
+        "sha256": "7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637"
+      },
+      {
+        "assetID": "asset-c",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-c",
+        "objectKey": "objects/11/111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1",
+        "originalFilename": "asset-c.jpg",
+        "role": "photo",
+        "sha256": "111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1"
+      },
+      {
+        "assetID": "asset-d",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-d",
+        "objectKey": "objects/96/969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8",
+        "originalFilename": "asset-d.jpg",
+        "role": "photo",
+        "sha256": "969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8"
+      },
+      {
+        "assetID": "asset-e",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-e",
+        "objectKey": "objects/42/42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694",
+        "originalFilename": "asset-e.jpg",
+        "role": "photo",
+        "sha256": "42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694"
+      }
+    ],
+    "version": 3
+  },
+  "expectedOrder": {
+    "assets": [
+      "asset-a",
+      "asset-b",
+      "asset-c",
+      "asset-d",
+      "asset-e"
+    ],
+    "records": [
+      "rec-both-add",
+      "rec-both-reorder",
+      "rec-mixed"
+    ]
+  },
+  "id": "media-add-delete-reorder",
+  "local": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-b"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-c",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-c"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-d",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-d"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-e",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-e"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000001000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a",
+            "asset-c",
+            "asset-d"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-mixed",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000001000,
+            "counter": 3,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-c",
+            "asset-a",
+            "asset-b"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-reorder",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000001000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a",
+            "asset-b",
+            "asset-d"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-add",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      },
+      {
+        "assetID": "asset-b",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-b",
+        "objectKey": "objects/7b/7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637",
+        "originalFilename": "asset-b.jpg",
+        "role": "photo",
+        "sha256": "7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637"
+      },
+      {
+        "assetID": "asset-c",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-c",
+        "objectKey": "objects/11/111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1",
+        "originalFilename": "asset-c.jpg",
+        "role": "photo",
+        "sha256": "111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1"
+      },
+      {
+        "assetID": "asset-d",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-d",
+        "objectKey": "objects/96/969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8",
+        "originalFilename": "asset-d.jpg",
+        "role": "photo",
+        "sha256": "969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8"
+      },
+      {
+        "assetID": "asset-e",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-e",
+        "objectKey": "objects/42/42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694",
+        "originalFilename": "asset-e.jpg",
+        "role": "photo",
+        "sha256": "42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694"
+      }
+    ],
+    "version": 3
+  },
+  "remote": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-b"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-c",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-c"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-d",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-d"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-e",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-e"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000002000,
+            "counter": 2,
+            "deviceID": "device-oppo"
+          },
+          "value": [
+            "asset-c",
+            "asset-b",
+            "asset-a",
+            "asset-e"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-mixed",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000009000,
+            "counter": 2,
+            "deviceID": "device-oppo"
+          },
+          "value": [
+            "asset-b",
+            "asset-c",
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-reorder",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      },
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000005000,
+            "counter": 2,
+            "deviceID": "device-oppo"
+          },
+          "value": [
+            "asset-a",
+            "asset-c"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-both-add",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      },
+      {
+        "assetID": "asset-b",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-b",
+        "objectKey": "objects/7b/7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637",
+        "originalFilename": "asset-b.jpg",
+        "role": "photo",
+        "sha256": "7b4875f447a821ed6920925775a6aa62791a87298e1637fd2ba8f4b9a0d72637"
+      },
+      {
+        "assetID": "asset-c",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-c",
+        "objectKey": "objects/11/111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1",
+        "originalFilename": "asset-c.jpg",
+        "role": "photo",
+        "sha256": "111f62a114509d519ff24cbfa3d7a1ea8352f3a66fd8490e68fb96835c5e34c1"
+      },
+      {
+        "assetID": "asset-d",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-d",
+        "objectKey": "objects/96/969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8",
+        "originalFilename": "asset-d.jpg",
+        "role": "photo",
+        "sha256": "969edeae5353505f951a146890151c1278fe292eb636486fe2958cf10810a9b8"
+      },
+      {
+        "assetID": "asset-e",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-e",
+        "objectKey": "objects/42/42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694",
+        "originalFilename": "asset-e.jpg",
+        "role": "photo",
+        "sha256": "42cd409024aa03ca2188493b685ff9e51079916fc4d0414b8f420dea2e899694"
+      }
+    ],
+    "version": 3
+  },
+  "requireSymmetry": true
+}

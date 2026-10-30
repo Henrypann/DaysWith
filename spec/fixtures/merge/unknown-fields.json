@@ -1,0 +1,707 @@
+{
+  "base": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-asset-a"
+        ]
+      }
+    ],
+    "extensions": {
+      "rootHint": {
+        "edit": {
+          "at": 1700000000000,
+          "counter": 1,
+          "deviceID": "device-iphone"
+        },
+        "value": {
+          "keep": 1
+        }
+      }
+    },
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {
+          "bothSides": {
+            "edit": {
+              "at": 1700000000000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "n": 1
+            }
+          },
+          "onlyBase": {
+            "edit": {
+              "at": 1700000000000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "n": 1
+            }
+          },
+          "vendorHint": {
+            "edit": {
+              "at": 1700000000000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "k": "base"
+            }
+          }
+        },
+        "futureScore": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "seed": true
+          }
+        },
+        "id": "rec-1",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-asset-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      }
+    ],
+    "version": 3
+  },
+  "description": "Unknown envelopes are merged without interpreting their values. A one-sided edit is kept, a one-sided removal is applied, additions from both phones are kept, and a same-field unknown edit keeps the loser intact.",
+  "expected": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-asset-a"
+        ]
+      }
+    ],
+    "extensions": {
+      "fromLocalRoot": {
+        "edit": {
+          "at": 1700000001000,
+          "counter": 1,
+          "deviceID": "device-iphone"
+        },
+        "value": {
+          "x": 1
+        }
+      },
+      "rootHint": {
+        "edit": {
+          "at": 1700000004000,
+          "counter": 2,
+          "deviceID": "device-oppo"
+        },
+        "value": {
+          "keep": 2
+        }
+      }
+    },
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {
+          "bothSides": {
+            "conflict": {
+              "edit": {
+                "at": 1700000001000,
+                "counter": 2,
+                "deviceID": "device-iphone"
+              },
+              "value": {
+                "n": 2
+              }
+            },
+            "edit": {
+              "at": 1700000004000,
+              "counter": 2,
+              "deviceID": "device-oppo"
+            },
+            "value": {
+              "n": 9
+            }
+          },
+          "fromLocal": {
+            "edit": {
+              "at": 1700000001000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "hello": "iphone"
+            }
+          },
+          "fromRemote": {
+            "edit": {
+              "at": 1700000004000,
+              "counter": 1,
+              "deviceID": "device-oppo"
+            },
+            "value": {
+              "hello": "oppo"
+            }
+          },
+          "vendorHint": {
+            "edit": {
+              "at": 1700000001000,
+              "counter": 2,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "k": "local"
+            }
+          }
+        },
+        "futureScore": {
+          "edit": {
+            "at": 1700000001000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "n": 2,
+            "seed": true
+          }
+        },
+        "id": "rec-1",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "outfitConstraintOverflow": false,
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-asset-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      }
+    ],
+    "version": 3
+  },
+  "expectedOrder": {
+    "assets": [
+      "asset-a"
+    ],
+    "records": [
+      "rec-1"
+    ]
+  },
+  "id": "unknown-fields",
+  "local": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-asset-a"
+        ]
+      }
+    ],
+    "extensions": {
+      "fromLocalRoot": {
+        "edit": {
+          "at": 1700000001000,
+          "counter": 1,
+          "deviceID": "device-iphone"
+        },
+        "value": {
+          "x": 1
+        }
+      },
+      "rootHint": {
+        "edit": {
+          "at": 1700000000000,
+          "counter": 1,
+          "deviceID": "device-iphone"
+        },
+        "value": {
+          "keep": 1
+        }
+      }
+    },
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {
+          "bothSides": {
+            "edit": {
+              "at": 1700000001000,
+              "counter": 2,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "n": 2
+            }
+          },
+          "fromLocal": {
+            "edit": {
+              "at": 1700000001000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "hello": "iphone"
+            }
+          },
+          "onlyBase": {
+            "edit": {
+              "at": 1700000000000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "n": 1
+            }
+          },
+          "vendorHint": {
+            "edit": {
+              "at": 1700000001000,
+              "counter": 2,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "k": "local"
+            }
+          }
+        },
+        "futureScore": {
+          "edit": {
+            "at": 1700000001000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "n": 2,
+            "seed": true
+          }
+        },
+        "id": "rec-1",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-asset-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      }
+    ],
+    "version": 3
+  },
+  "remote": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-asset-a"
+        ]
+      }
+    ],
+    "extensions": {
+      "rootHint": {
+        "edit": {
+          "at": 1700000004000,
+          "counter": 2,
+          "deviceID": "device-oppo"
+        },
+        "value": {
+          "keep": 2
+        }
+      }
+    },
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-a"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {
+          "bothSides": {
+            "edit": {
+              "at": 1700000004000,
+              "counter": 2,
+              "deviceID": "device-oppo"
+            },
+            "value": {
+              "n": 9
+            }
+          },
+          "fromRemote": {
+            "edit": {
+              "at": 1700000004000,
+              "counter": 1,
+              "deviceID": "device-oppo"
+            },
+            "value": {
+              "hello": "oppo"
+            }
+          },
+          "vendorHint": {
+            "edit": {
+              "at": 1700000000000,
+              "counter": 1,
+              "deviceID": "device-iphone"
+            },
+            "value": {
+              "k": "base"
+            }
+          }
+        },
+        "futureScore": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "seed": true
+          }
+        },
+        "id": "rec-1",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-a",
+        "byteCount": 1007,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-asset-a",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "originalFilename": "asset-a.jpg",
+        "role": "photo",
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63"
+      }
+    ],
+    "version": 3
+  },
+  "requireSymmetry": true
+}

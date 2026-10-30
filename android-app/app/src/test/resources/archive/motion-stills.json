@@ -1,0 +1,679 @@
+{
+  "base": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-live",
+        "kind": "livePhoto",
+        "resourceIDs": [
+          "res-live-preview",
+          "res-live-still",
+          "res-live-video"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-motion",
+        "kind": "motionPhoto",
+        "resourceIDs": [
+          "res-motion",
+          "res-motion-preview"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-live",
+            "asset-motion"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Stills only"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-still",
+        "objectKey": "objects/0c/0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5",
+        "originalFilename": "live.heic",
+        "role": "livePhotoImage",
+        "sha256": "0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "video/mp4",
+        "extensions": {},
+        "id": "res-live-video",
+        "objectKey": "objects/5f/5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e",
+        "originalFilename": "live.mov",
+        "role": "livePhotoVideo",
+        "sha256": "5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-preview",
+        "objectKey": "objects/4b/4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429",
+        "originalFilename": "live-preview.jpg",
+        "role": "preview",
+        "sha256": "4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1020,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion",
+        "objectKey": "objects/6e/6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc",
+        "originalFilename": "oplus-motion.jpg",
+        "role": "motionPhoto",
+        "sha256": "6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion-preview",
+        "objectKey": "objects/da/da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9",
+        "originalFilename": "oplus-preview.jpg",
+        "role": "preview",
+        "sha256": "da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9"
+      }
+    ],
+    "version": 3
+  },
+  "description": "v1 stores an iPhone Live Photo as still, paired video, and preview, and an OPPO motion photo as one motionPhoto original plus a preview. Merge keeps every original byte. Playback of either motion form is outside this fixture.",
+  "expected": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-live",
+        "kind": "livePhoto",
+        "resourceIDs": [
+          "res-live-preview",
+          "res-live-still",
+          "res-live-video"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-motion",
+        "kind": "motionPhoto",
+        "resourceIDs": [
+          "res-motion",
+          "res-motion-preview"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-live",
+            "asset-motion"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Stills only"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-live",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-preview",
+        "objectKey": "objects/4b/4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429",
+        "originalFilename": "live-preview.jpg",
+        "role": "preview",
+        "sha256": "4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-still",
+        "objectKey": "objects/0c/0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5",
+        "originalFilename": "live.heic",
+        "role": "livePhotoImage",
+        "sha256": "0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "video/mp4",
+        "extensions": {},
+        "id": "res-live-video",
+        "objectKey": "objects/5f/5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e",
+        "originalFilename": "live.mov",
+        "role": "livePhotoVideo",
+        "sha256": "5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1020,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion",
+        "objectKey": "objects/6e/6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc",
+        "originalFilename": "oplus-motion.jpg",
+        "role": "motionPhoto",
+        "sha256": "6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion-preview",
+        "objectKey": "objects/da/da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9",
+        "originalFilename": "oplus-preview.jpg",
+        "role": "preview",
+        "sha256": "da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9"
+      }
+    ],
+    "version": 3
+  },
+  "expectedOrder": {
+    "assets": [
+      "asset-live",
+      "asset-motion"
+    ],
+    "records": [
+      "rec-1"
+    ]
+  },
+  "id": "motion-stills",
+  "local": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-live",
+        "kind": "livePhoto",
+        "resourceIDs": [
+          "res-live-preview",
+          "res-live-still",
+          "res-live-video"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-motion",
+        "kind": "motionPhoto",
+        "resourceIDs": [
+          "res-motion",
+          "res-motion-preview"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-live",
+            "asset-motion"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Stills only"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-still",
+        "objectKey": "objects/0c/0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5",
+        "originalFilename": "live.heic",
+        "role": "livePhotoImage",
+        "sha256": "0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "video/mp4",
+        "extensions": {},
+        "id": "res-live-video",
+        "objectKey": "objects/5f/5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e",
+        "originalFilename": "live.mov",
+        "role": "livePhotoVideo",
+        "sha256": "5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-preview",
+        "objectKey": "objects/4b/4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429",
+        "originalFilename": "live-preview.jpg",
+        "role": "preview",
+        "sha256": "4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1020,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion",
+        "objectKey": "objects/6e/6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc",
+        "originalFilename": "oplus-motion.jpg",
+        "role": "motionPhoto",
+        "sha256": "6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion-preview",
+        "objectKey": "objects/da/da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9",
+        "originalFilename": "oplus-preview.jpg",
+        "role": "preview",
+        "sha256": "da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9"
+      }
+    ],
+    "version": 3
+  },
+  "remote": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-live",
+        "kind": "livePhoto",
+        "resourceIDs": [
+          "res-live-preview",
+          "res-live-still",
+          "res-live-video"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-motion",
+        "kind": "motionPhoto",
+        "resourceIDs": [
+          "res-motion",
+          "res-motion-preview"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-live",
+            "asset-motion"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Stills only"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-still",
+        "objectKey": "objects/0c/0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5",
+        "originalFilename": "live.heic",
+        "role": "livePhotoImage",
+        "sha256": "0ced01ff73087573eefdba616ab9177d4b13fb9816024955bc50fabec977dea5"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1017,
+        "contentType": "video/mp4",
+        "extensions": {},
+        "id": "res-live-video",
+        "objectKey": "objects/5f/5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e",
+        "originalFilename": "live.mov",
+        "role": "livePhotoVideo",
+        "sha256": "5f5f815d1dfb3229227b1dad0b702a0cdc355d6e23aefadeff8f2335f75c726e"
+      },
+      {
+        "assetID": "asset-live",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-live-preview",
+        "objectKey": "objects/4b/4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429",
+        "originalFilename": "live-preview.jpg",
+        "role": "preview",
+        "sha256": "4b1605fce0c74e0d19aa906e9bd00cbbfa7e10601f1636ac550cb8c5dba3d429"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1020,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion",
+        "objectKey": "objects/6e/6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc",
+        "originalFilename": "oplus-motion.jpg",
+        "role": "motionPhoto",
+        "sha256": "6ebfc501e5f1d9407e80124db4dfa064e5233051e007476579284092628ebadc"
+      },
+      {
+        "assetID": "asset-motion",
+        "byteCount": 1019,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-motion-preview",
+        "objectKey": "objects/da/da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9",
+        "originalFilename": "oplus-preview.jpg",
+        "role": "preview",
+        "sha256": "da48e0dcb298e80262d4f3b5df944c72254f4381348654c3e0f35447c58c88e9"
+      }
+    ],
+    "version": 3
+  },
+  "requireSymmetry": true
+}

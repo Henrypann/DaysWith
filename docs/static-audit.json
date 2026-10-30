@@ -1,0 +1,156 @@
+{
+  "reviewed_code_revision": "ef5b422fbf2295967fa210def8407f9ae8150831",
+  "base_commit": "f86a6de1a2d11619fa39498b68c60b0a324c6eab",
+  "tracked_files": 558,
+  "reachable_blobs": {
+    "blob_count": 543,
+    "text_blob_count": 520,
+    "binary_blob_count": 23
+  },
+  "unresolved_static_rule_findings": [],
+  "private_image_exclusion": {
+    "compared_source_fingerprints": 161,
+    "all_refs_reachable_matches": 0,
+    "new_application_icons": "10 outputs generated solely from geometric coordinates; no source image inputs"
+  },
+  "image_sources": {
+    "total_png_files": 28,
+    "generated_placeholders": 10,
+    "unchanged_official_flutter_templates": 18,
+    "official_package": "flutter_template_images 4.2.0",
+    "template_verification": "exact byte equality to official package",
+    "metadata": "No EXIF in final PNG files"
+  },
+  "embedded_image_fixture": {
+    "path": "android-app/app/src/test/java/com/henrypann/jinbao365/media/AndroidMediaFactsTest.kt",
+    "description": "97-byte synthetic JPEG metadata fixture with APP1 and EOI only; no raster scan"
+  },
+  "binary_manifest": [
+    {
+      "path": "android-app/app/src/main/res/drawable-nodpi/brand_mark.png",
+      "bytes": 10994,
+      "sha256": "253f53042802906e605fd518abb31cfac57c24a58c156463077d1587a46c4766"
+    },
+    {
+      "path": "android-app/gradle/wrapper/gradle-wrapper.jar",
+      "bytes": 48462,
+      "sha256": "497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7"
+    },
+    {
+      "path": "flutter/jinbao365_app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "bytes": 190,
+      "sha256": "aadb1fd4ab6376bf063c131544beb53f8fa973f0a2d863d4468cd453ffcb4357"
+    },
+    {
+      "path": "flutter/jinbao365_app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "bytes": 157,
+      "sha256": "eb728587825493d2188069c0f2d37bb204e92595e7b293fefc8d6afdc9014e00"
+    },
+    {
+      "path": "flutter/jinbao365_app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "bytes": 245,
+      "sha256": "62f180a90d79c03c4462a5a921f7b01e2adfe3326f4d33f463ea2b8d1803c2a4"
+    },
+    {
+      "path": "flutter/jinbao365_app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "bytes": 361,
+      "sha256": "76c3a60a2a9e231c3433cb14e6fa1c3d0464e6d8ccc465f6445ca0bb38685883"
+    },
+    {
+      "path": "flutter/jinbao365_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "bytes": 564,
+      "sha256": "a2bacfcbd077617b4448399b376fb7f27a9596d604c02bd840326c3cf3a93652"
+    },
+    {
+      "path": "flutter/jinbao365_app/assets/brand_mark.png",
+      "bytes": 2647,
+      "sha256": "a054aa99e713749503c723a5fb7385d6b1174954ae85a5d9188deb86b0f0f248"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+      "bytes": 7911,
+      "sha256": "2c5fad7456a63836a04438a4cd1ebbe46005e1e770e7db139f8db8349572f2d8"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+      "bytes": 10932,
+      "sha256": "7770183009e914112de7d8ef1d235a6a30c5834424858e0d2f8253f6b8d31926"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png",
+      "bytes": 295,
+      "sha256": "cab10a0d391ec5bc09ef50ce49e8ad401cee7ef03707ec0923a222c5c2b3d212"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png",
+      "bytes": 406,
+      "sha256": "b9ad02cf6576a04d1b6806ac02a2431481b448dd0c2e505ce25842d1f7c4730b"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png",
+      "bytes": 450,
+      "sha256": "c6e6d3b215ae744a9c391f4c4d44157eff5e739d6ad6c39f9bfa5df66dddd267"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png",
+      "bytes": 282,
+      "sha256": "5dee24dc104ac76dc162e42ae0beb163d426bf365562ee28ba7b3ad368559a60"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png",
+      "bytes": 462,
+      "sha256": "a9b21eb6f4271385655a8771f76e29eef8c1107d7879cbcfc567e6619d1f716a"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png",
+      "bytes": 704,
+      "sha256": "e677d701ffe4af7bc2935098d6b3984cc9ab7ace573e6900955a5535b12410cf"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png",
+      "bytes": 586,
+      "sha256": "7c61c42fc7b657d9cf314d32a4ec458f0647c3aaf360be1b9377857266ec2499"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png",
+      "bytes": 862,
+      "sha256": "19be171481dc71a0b2803ebcd01dd8b0c5fd5778dee34c0a3cabc948c225f24e"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png",
+      "bytes": 1674,
+      "sha256": "4209a49e44a92ec40a327d3455eb1b1c153ee83d75de1c2be0a12ab18b2ff9de"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png",
+      "bytes": 762,
+      "sha256": "836c918cb613249eba0483a6b02fa3df3c1c0a89a315ee4d3b88509b83c7ab73"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png",
+      "bytes": 1226,
+      "sha256": "41c7d42f6e61f8fe7f30b1ffa2256aecbc9682be06d18c4a3062043e1a2e547c"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png",
+      "bytes": 1418,
+      "sha256": "5d7e5bdf01b93802bc973345b3a78c038907147625035952a08a115a563b7f81"
+    },
+    {
+      "path": "flutter/jinbao365_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png",
+      "bytes": 68,
+      "sha256": "93ae7d494fad0fb30cbf3ae746a39c4bc7a0f8bbf87fbb587a3f3c01f3c5ce20"
+    }
+  ],
+  "history": {
+    "independent_git_directory": true,
+    "inherited_private_history": false,
+    "prior_preparation_branches_included": false,
+    "code_candidate_commits": 2
+  },
+  "limitations": [
+    "Static rules cannot prove absence of every unknown or encoded secret.",
+    "Does not audit remote LFS/releases/issues/attachments or the old private repository.",
+    "Flutter/Dart/Swift toolchains and device acceptance are unavailable."
+  ]
+}

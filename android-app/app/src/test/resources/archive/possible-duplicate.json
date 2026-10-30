@@ -1,0 +1,921 @@
+{
+  "base": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-original",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-original"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-wechat",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-wechat"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-b"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-original",
+            "asset-wechat",
+            "asset-dup-a",
+            "asset-dup-b"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-original",
+        "byteCount": 1014,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-original",
+        "objectKey": "objects/8e/8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a",
+        "originalFilename": "camera.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a"
+      },
+      {
+        "assetID": "asset-wechat",
+        "byteCount": 1025,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-wechat",
+        "objectKey": "objects/bb/bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a",
+        "originalFilename": "wechat.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a"
+      },
+      {
+        "assetID": "asset-dup-a",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-a",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-a.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      },
+      {
+        "assetID": "asset-dup-b",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-b",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-b.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      }
+    ],
+    "version": 3
+  },
+  "description": "Identical bytes share one content-hash object key and stay two resource records. A recompressed WeChat copy has a different hash, is not merged away, and is only flagged as a possible duplicate.",
+  "expected": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-b"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-original",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-original"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-wechat",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-wechat"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-original",
+            "asset-wechat",
+            "asset-dup-a",
+            "asset-dup-b"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-dup-a",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-a",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-a.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      },
+      {
+        "assetID": "asset-dup-b",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-b",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-b.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      },
+      {
+        "assetID": "asset-original",
+        "byteCount": 1014,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-original",
+        "objectKey": "objects/8e/8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a",
+        "originalFilename": "camera.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a"
+      },
+      {
+        "assetID": "asset-wechat",
+        "byteCount": 1025,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-wechat",
+        "objectKey": "objects/bb/bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a",
+        "originalFilename": "wechat.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000002500,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": "res-original"
+        },
+        "role": "photo",
+        "sha256": "bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a"
+      }
+    ],
+    "version": 3
+  },
+  "expectedOrder": {
+    "assets": [
+      "asset-dup-a",
+      "asset-dup-b",
+      "asset-original",
+      "asset-wechat"
+    ],
+    "records": [
+      "rec-1"
+    ]
+  },
+  "id": "possible-duplicate",
+  "local": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-original",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-original"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-wechat",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-wechat"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-b"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-original",
+            "asset-wechat",
+            "asset-dup-a",
+            "asset-dup-b"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-original",
+        "byteCount": 1014,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-original",
+        "objectKey": "objects/8e/8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a",
+        "originalFilename": "camera.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a"
+      },
+      {
+        "assetID": "asset-wechat",
+        "byteCount": 1025,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-wechat",
+        "objectKey": "objects/bb/bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a",
+        "originalFilename": "wechat.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000002500,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": "res-original"
+        },
+        "role": "photo",
+        "sha256": "bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a"
+      },
+      {
+        "assetID": "asset-dup-a",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-a",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-a.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      },
+      {
+        "assetID": "asset-dup-b",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-b",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-b.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      }
+    ],
+    "version": 3
+  },
+  "remote": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-original",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-original"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-wechat",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-wechat"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-a",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-a"
+        ]
+      },
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-dup-b",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-dup-b"
+        ]
+      }
+    ],
+    "extensions": {},
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-original",
+            "asset-wechat",
+            "asset-dup-a",
+            "asset-dup-b"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-1",
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": ""
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Untitled"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-original",
+        "byteCount": 1014,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-original",
+        "objectKey": "objects/8e/8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a",
+        "originalFilename": "camera.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "8e338be649868e7c9e053212037e4bb0965ba7653e81b974bab76578bd59c80a"
+      },
+      {
+        "assetID": "asset-wechat",
+        "byteCount": 1025,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-wechat",
+        "objectKey": "objects/bb/bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a",
+        "originalFilename": "wechat.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "bb09534cb2b6045d2de9c9af6161fac71ab3dee6d59b5a1fb7117830328ee26a"
+      },
+      {
+        "assetID": "asset-dup-a",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-a",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-a.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      },
+      {
+        "assetID": "asset-dup-b",
+        "byteCount": 1015,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-dup-b",
+        "objectKey": "objects/1b/1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c",
+        "originalFilename": "copy-b.jpg",
+        "possibleDuplicateOf": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        },
+        "role": "photo",
+        "sha256": "1bb85e67e010d1d1babcfec6d6b5855013bded82954a9aeb475be0e2b009898c"
+      }
+    ],
+    "version": 3
+  },
+  "requireSymmetry": true
+}

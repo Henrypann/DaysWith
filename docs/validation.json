@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-30",
+  "platform": "Linux",
+  "checks": {
+    "android_debug_unit_tests": {
+      "tests": 674,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_debug_build": {
+      "status": "passed",
+      "apk_sha256": "faa973ff2b595e1b523bbbb2a332d1db3e9e24a7228eae0d863f0815874bc1d6"
+    },
+    "dart_flutter": "not run: toolchain unavailable",
+    "swift_ios": "not run: toolchain unavailable",
+    "device_upgrade_and_real_cos": "not run: no device or production credential use",
+    "source_json_plist": {
+      "status": "passed",
+      "files": 126
+    },
+    "generated_icons": {
+      "files": 10,
+      "status": "passed: deterministic generator --check"
+    },
+    "flutter_template_images": {
+      "files": 18,
+      "status": "passed: exact byte matches to official flutter_template_images 4.2.0 package"
+    },
+    "packaged_launcher_render": "passed: neutral geometric foreground visible, former illustrated palette absent",
+    "original_artwork_exclusion": {
+      "compared_source_image_fingerprints": 161,
+      "working_tree_matches": 0,
+      "note": "Only official Flutter template matches are intentionally retained; final history scan recorded separately."
+    },
+    "reviewed_code_revision": "ef5b422fbf2295967fa210def8407f9ae8150831",
+    "final_source_scan": {
+      "tracked_files": 558,
+      "distinct_reachable_blobs": 543,
+      "unresolved_rule_findings": 0,
+      "private_image_all_refs_matches": 0
+    }
+  },
+  "scope": "local preparation only; no push, publication, merge, or visibility change"
+}
