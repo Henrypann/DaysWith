@@ -32,6 +32,13 @@
       "compared_source_image_fingerprints": 161,
       "working_tree_matches": 0,
       "note": "Only official Flutter template matches are intentionally retained; final history scan recorded separately."
+    },
+    "reviewed_code_revision": "ef5b422fbf2295967fa210def8407f9ae8150831",
+    "final_source_scan": {
+      "tracked_files": 558,
+      "distinct_reachable_blobs": 543,
+      "unresolved_rule_findings": 0,
+      "private_image_all_refs_matches": 0
     }
   },
   "scope": "local preparation only; no push, publication, merge, or visibility change"
