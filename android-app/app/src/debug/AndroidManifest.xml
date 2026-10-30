@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Shell has DUMP; ordinary apps do not. Exporting only this debug entry allows
+             adb shell am start without exposing the seed hook to other installed apps. -->
+        <activity
+            android:name=".debug.SeedActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:excludeFromRecents="true" />
+        <activity
+            android:name=".debug.PhotoPreviewSmokeActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:excludeFromRecents="true" />
+    </application>
+</manifest>

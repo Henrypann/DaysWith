@@ -1,0 +1,36 @@
+# Local machine state and generated output
+local.properties
+.gradle/
+.kotlin/
+build/
+.dart_tool/
+.flutter-plugins*
+.packages
+.idea/
+*.iml
+.DS_Store
+Pods/
+.symlinks/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+ios-app/.build/
+ios-app/.swiftpm/
+# Credentials, signing and private evidence
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+*.apk
+*.aab
+*.ipa
+/artifacts/
+/private/
+
+# Python tooling output
+__pycache__/
+*.py[cod]

@@ -1,0 +1,16 @@
+name: jinbao_core
+description: Shared DaysWith contracts (V1/V2 archive wire format, family merge, COS client, backup queue) ported from the iOS JinbaoCore Swift package.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  characters: ^1.4.1
+  collection: ^1.19.1
+  crypto: ^3.0.7
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.33.0

@@ -1,0 +1,350 @@
+{
+  "base": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-expired",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-expired"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-expired"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-expired",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Already trashed"
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Gone soon"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1700000003000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "deletedAt": 1700000003000,
+            "purgeAfter": 1702592003000
+          }
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-expired",
+        "byteCount": 16,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-expired",
+        "objectKey": "objects/8d/8d7b209c699583a5c1fc2c033a5b768fbe67b887569d869d0f228e3c65889e40",
+        "originalFilename": "expired.jpg",
+        "role": "photo",
+        "sha256": "8d7b209c699583a5c1fc2c033a5b768fbe67b887569d869d0f228e3c65889e40"
+      }
+    ],
+    "version": 3
+  },
+  "description": "The base record is already tombstoned and past purgeAfter. One side omitted it. The other side restored it offline, so tombstone is null, and edited the title. The result keeps that restored record and its media. Swapping local and remote yields the same snapshot.",
+  "expected": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-expired",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-expired"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-expired"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-expired",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "mediaOverflow": false,
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Already trashed"
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "outfitConstraintOverflow": false,
+        "title": {
+          "edit": {
+            "at": 1702592100000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": "Restored offline"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1702592100000,
+            "counter": 3,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-expired",
+        "byteCount": 16,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-expired",
+        "objectKey": "objects/8d/8d7b209c699583a5c1fc2c033a5b768fbe67b887569d869d0f228e3c65889e40",
+        "originalFilename": "expired.jpg",
+        "role": "photo",
+        "sha256": "8d7b209c699583a5c1fc2c033a5b768fbe67b887569d869d0f228e3c65889e40"
+      }
+    ],
+    "version": 3
+  },
+  "expectedOrder": {
+    "assets": [
+      "asset-expired"
+    ],
+    "records": [
+      "rec-expired"
+    ]
+  },
+  "id": "expired-purge-vs-offline-restore",
+  "local": {
+    "assets": [
+      {
+        "capturedAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeUnknown": false,
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "extensions": {},
+        "id": "asset-expired",
+        "kind": "photo",
+        "resourceIDs": [
+          "res-expired"
+        ]
+      }
+    ],
+    "extensions": {},
+    "items": [],
+    "records": [
+      {
+        "assetIDs": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": [
+            "asset-expired"
+          ]
+        },
+        "createdAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": 1700000000000
+        },
+        "extensions": {},
+        "id": "rec-expired",
+        "isOutfit": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": false
+        },
+        "links": [],
+        "note": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": "Already trashed"
+        },
+        "occurredAt": {
+          "edit": {
+            "at": 1700000000000,
+            "counter": 1,
+            "deviceID": "device-iphone"
+          },
+          "value": {
+            "timeZone": "Asia/Shanghai",
+            "utc": 1700000000000
+          }
+        },
+        "title": {
+          "edit": {
+            "at": 1702592100000,
+            "counter": 2,
+            "deviceID": "device-iphone"
+          },
+          "value": "Restored offline"
+        },
+        "tombstone": {
+          "edit": {
+            "at": 1702592100000,
+            "counter": 3,
+            "deviceID": "device-iphone"
+          },
+          "value": null
+        }
+      }
+    ],
+    "resources": [
+      {
+        "assetID": "asset-expired",
+        "byteCount": 16,
+        "contentType": "image/jpeg",
+        "extensions": {},
+        "id": "res-expired",
+        "objectKey": "objects/8d/8d7b209c699583a5c1fc2c033a5b768fbe67b887569d869d0f228e3c65889e40",
+        "originalFilename": "expired.jpg",
+        "role": "photo",
+        "sha256": "8d7b209c699583a5c1fc2c033a5b768fbe67b887569d869d0f228e3c65889e40"
+      }
+    ],
+    "version": 3
+  },
+  "remote": {
+    "assets": [],
+    "extensions": {},
+    "items": [],
+    "records": [],
+    "resources": [],
+    "version": 3
+  },
+  "requireSymmetry": true
+}

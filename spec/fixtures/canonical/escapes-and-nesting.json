@@ -1,0 +1,23 @@
+{
+  "id": "escapes-and-nesting",
+  "description": "Strings escape quotes, backslashes, and controls. Nested object keys use the same UTF-8 order. Integers stay decimal, including zero and negatives.",
+  "input": {
+    "quote": "say \"hi\"",
+    "slash": "a\\b",
+    "controls": "\n\t\u0001",
+    "nested": {
+      "b": true,
+      "a": null,
+      "é": [
+        1,
+        {
+          "z": 2,
+          "a": -2
+        }
+      ]
+    },
+    "n": 0
+  },
+  "canonical": "{\"controls\":\"\\n\\t\\u0001\",\"n\":0,\"nested\":{\"a\":null,\"b\":true,\"é\":[1,{\"a\":-2,\"z\":2}]},\"quote\":\"say \\\"hi\\\"\",\"slash\":\"a\\\\b\"}",
+  "sha256": "ddd30e1c8f5045900564da6da041c657a48e294a4ad9d0f9e111f98de30e3d10"
+}

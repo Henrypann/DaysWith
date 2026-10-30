@@ -1,0 +1,1262 @@
+{
+  "id": "capture-time-forms",
+  "kind": "merge",
+  "description": "Capture time is an IANA zone, an offset, or a known instant whose zone is unknown. An estimated record time is marked. hasLocation is part of the asset.",
+  "requireSymmetry": true,
+  "base": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-estimated",
+        "title": {
+          "value": "Estimate",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 3000,
+            "zoneUnknown": true,
+            "estimated": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-zone"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-iana",
+        "title": {
+          "value": "Named zone",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-iana"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-offset",
+        "title": {
+          "value": "Offset only",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-offset"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      }
+    ],
+    "items": [],
+    "assets": [
+      {
+        "id": "asset-iana",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-iana"
+        ],
+        "extensions": {},
+        "hasLocation": true
+      },
+      {
+        "id": "asset-offset",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-offset"
+        ],
+        "extensions": {},
+        "hasLocation": false
+      },
+      {
+        "id": "asset-zone",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 3000,
+            "zoneUnknown": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-zone"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-iana",
+        "assetID": "asset-iana",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-iana.jpg",
+        "byteCount": 100,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "objectKey": "objects/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "extensions": {}
+      },
+      {
+        "id": "res-offset",
+        "assetID": "asset-offset",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-offset.jpg",
+        "byteCount": 100,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "objectKey": "objects/bb/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "extensions": {}
+      },
+      {
+        "id": "res-zone",
+        "assetID": "asset-zone",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-zone.jpg",
+        "byteCount": 100,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "objectKey": "objects/cc/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "local": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-estimated",
+        "title": {
+          "value": "Estimate",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 3000,
+            "zoneUnknown": true,
+            "estimated": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-zone"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-iana",
+        "title": {
+          "value": "Named zone",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-iana"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-offset",
+        "title": {
+          "value": "Offset only",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-offset"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      }
+    ],
+    "items": [],
+    "assets": [
+      {
+        "id": "asset-iana",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-iana"
+        ],
+        "extensions": {},
+        "hasLocation": true
+      },
+      {
+        "id": "asset-offset",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-offset"
+        ],
+        "extensions": {},
+        "hasLocation": false
+      },
+      {
+        "id": "asset-zone",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 3000,
+            "zoneUnknown": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-zone"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-iana",
+        "assetID": "asset-iana",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-iana.jpg",
+        "byteCount": 100,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "objectKey": "objects/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "extensions": {}
+      },
+      {
+        "id": "res-offset",
+        "assetID": "asset-offset",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-offset.jpg",
+        "byteCount": 100,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "objectKey": "objects/bb/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "extensions": {}
+      },
+      {
+        "id": "res-zone",
+        "assetID": "asset-zone",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-zone.jpg",
+        "byteCount": 100,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "objectKey": "objects/cc/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "remote": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-estimated",
+        "title": {
+          "value": "Estimate",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 3000,
+            "zoneUnknown": true,
+            "estimated": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-zone"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-iana",
+        "title": {
+          "value": "Named zone",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-iana"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-offset",
+        "title": {
+          "value": "Offset only",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-offset"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      }
+    ],
+    "items": [],
+    "assets": [
+      {
+        "id": "asset-iana",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-iana"
+        ],
+        "extensions": {},
+        "hasLocation": true
+      },
+      {
+        "id": "asset-offset",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-offset"
+        ],
+        "extensions": {},
+        "hasLocation": false
+      },
+      {
+        "id": "asset-zone",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 3000,
+            "zoneUnknown": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-zone"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-iana",
+        "assetID": "asset-iana",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-iana.jpg",
+        "byteCount": 100,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "objectKey": "objects/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "extensions": {}
+      },
+      {
+        "id": "res-offset",
+        "assetID": "asset-offset",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-offset.jpg",
+        "byteCount": 100,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "objectKey": "objects/bb/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "extensions": {}
+      },
+      {
+        "id": "res-zone",
+        "assetID": "asset-zone",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-zone.jpg",
+        "byteCount": 100,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "objectKey": "objects/cc/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "expected": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-estimated",
+        "title": {
+          "value": "Estimate",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 3000,
+            "zoneUnknown": true,
+            "estimated": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-zone"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-iana",
+        "title": {
+          "value": "Named zone",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-iana"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      },
+      {
+        "id": "rec-offset",
+        "title": {
+          "value": "Offset only",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-offset"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "isOutfit": {
+          "value": false,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "links": [],
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false,
+        "outfitConstraintOverflow": false
+      }
+    ],
+    "items": [],
+    "assets": [
+      {
+        "id": "asset-iana",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 2000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-iana"
+        ],
+        "extensions": {},
+        "hasLocation": true
+      },
+      {
+        "id": "asset-offset",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1000,
+            "utcOffset": "+08:00"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-offset"
+        ],
+        "extensions": {},
+        "hasLocation": false
+      },
+      {
+        "id": "asset-zone",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 3000,
+            "zoneUnknown": true
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-zone"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-iana",
+        "assetID": "asset-iana",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-iana.jpg",
+        "byteCount": 100,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "objectKey": "objects/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "extensions": {}
+      },
+      {
+        "id": "res-offset",
+        "assetID": "asset-offset",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-offset.jpg",
+        "byteCount": 100,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "objectKey": "objects/bb/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "extensions": {}
+      },
+      {
+        "id": "res-zone",
+        "assetID": "asset-zone",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-zone.jpg",
+        "byteCount": 100,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "objectKey": "objects/cc/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "expectedOrder": {
+    "records": [
+      "rec-offset",
+      "rec-iana",
+      "rec-estimated"
+    ],
+    "assets": [
+      "asset-offset",
+      "asset-iana",
+      "asset-zone"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Jinbao365" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/startup_cream</item>
+        <item name="android:forceDarkAllowed">false</item>
+    <item name="android:statusBarColor">@color/brand_cream</item><item name="android:navigationBarColor">@color/brand_cream</item><item name="android:windowLightStatusBar">true</item><item name="android:windowLightNavigationBar">true</item></style>
+</resources>

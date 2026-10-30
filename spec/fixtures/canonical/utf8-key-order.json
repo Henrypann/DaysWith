@@ -1,0 +1,15 @@
+{
+  "id": "utf8-key-order",
+  "description": "Object keys sort by raw UTF-8 bytes. NFD e+acute (65 CC 81) precedes ASCII z and NFC é (C3 A9). Emoji follows both.",
+  "input": {
+    "z": 1,
+    "é": "nfc",
+    "a": true,
+    "👍": "yes",
+    "é": "nfd",
+    "e": 0,
+    "b": null
+  },
+  "canonical": "{\"a\":true,\"b\":null,\"e\":0,\"é\":\"nfd\",\"z\":1,\"é\":\"nfc\",\"👍\":\"yes\"}",
+  "sha256": "c732e2254bda5d160636fdde4988dfef12bbbbcd8d5145ca449524278609b807"
+}

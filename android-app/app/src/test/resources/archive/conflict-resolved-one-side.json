@@ -1,0 +1,422 @@
+{
+  "id": "conflict-resolved-one-side",
+  "description": "Base title is Green with a Blue conflict. One side resolves it to Blue and drops the conflict. The other side is untouched.",
+  "requireSymmetry": true,
+  "base": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "title": {
+          "value": "Green",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          },
+          "conflict": {
+            "value": "Blue",
+            "edit": {
+              "counter": 2,
+              "at": 1700000001000,
+              "deviceID": "device-iphone"
+            }
+          }
+        },
+        "note": {
+          "value": "Base note",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-a"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {}
+      }
+    ],
+    "assets": [
+      {
+        "id": "asset-a",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-asset-a"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-asset-a",
+        "assetID": "asset-a",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-a.jpg",
+        "byteCount": 1007,
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "local": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "title": {
+          "value": "Green",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          },
+          "conflict": {
+            "value": "Blue",
+            "edit": {
+              "counter": 2,
+              "at": 1700000001000,
+              "deviceID": "device-iphone"
+            }
+          }
+        },
+        "note": {
+          "value": "Base note",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-a"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {}
+      }
+    ],
+    "assets": [
+      {
+        "id": "asset-a",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-asset-a"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-asset-a",
+        "assetID": "asset-a",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-a.jpg",
+        "byteCount": 1007,
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "remote": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "title": {
+          "value": "Blue",
+          "edit": {
+            "counter": 2,
+            "at": 1700000003000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "Base note",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-a"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {}
+      }
+    ],
+    "assets": [
+      {
+        "id": "asset-a",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-asset-a"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-asset-a",
+        "assetID": "asset-a",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-a.jpg",
+        "byteCount": 1007,
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "expected": {
+    "version": 3,
+    "records": [
+      {
+        "id": "rec-1",
+        "title": {
+          "value": "Blue",
+          "edit": {
+            "counter": 2,
+            "at": 1700000003000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "note": {
+          "value": "Base note",
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "occurredAt": {
+          "value": {
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "createdAt": {
+          "value": 1700000000000,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "assetIDs": {
+          "value": [
+            "asset-a"
+          ],
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "tombstone": {
+          "value": null,
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "extensions": {},
+        "mediaOverflow": false
+      }
+    ],
+    "assets": [
+      {
+        "id": "asset-a",
+        "kind": "photo",
+        "capturedAt": {
+          "value": {
+            "timeUnknown": false,
+            "utc": 1700000000000,
+            "timeZone": "Asia/Shanghai"
+          },
+          "edit": {
+            "counter": 1,
+            "at": 1700000000000,
+            "deviceID": "device-iphone"
+          }
+        },
+        "resourceIDs": [
+          "res-asset-a"
+        ],
+        "extensions": {}
+      }
+    ],
+    "resources": [
+      {
+        "id": "res-asset-a",
+        "assetID": "asset-a",
+        "role": "photo",
+        "contentType": "image/jpeg",
+        "originalFilename": "asset-a.jpg",
+        "byteCount": 1007,
+        "sha256": "769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "objectKey": "objects/76/769b206a3f59eae2ed7455e4a9269121ce20f26534c06e32f9fa6085c7274a63",
+        "extensions": {}
+      }
+    ],
+    "extensions": {}
+  },
+  "expectedOrder": {
+    "records": [
+      "rec-1"
+    ],
+    "assets": [
+      "asset-a"
+    ]
+  }
+}
