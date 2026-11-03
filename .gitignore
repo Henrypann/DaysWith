@@ -34,3 +34,7 @@ ios-app/.swiftpm/
 # Python tooling output
 __pycache__/
 *.py[cod]
+.gateway-python-deps/
+
+# Cloud acceptance toolchains (not product source)
+.toolchains/
