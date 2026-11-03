@@ -141,6 +141,9 @@ void main() {
     expect(networkCalls, 0);
     expect(reopened.backupStatusTitle, '备份已暂停');
     expect(objects, isEmpty);
+    reopened.dispose();
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
   });
 
   test('synchronous listener pause is not cleared by the starting upload', () async {

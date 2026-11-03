@@ -102,6 +102,20 @@ Widget _screen(FamilyDataFixture fixture, _ScreenController controller, {Future<
       currentLocalSession: () => fixture.session, localDirectory: fixture.root.path,
       controller: controller, onAddPhotos: onAddPhotos));
 
+/// ensureVisible jumps on a later microtask. Pump before hit testing, and
+/// require the target — especially 「确认隐藏」 — to sit inside the surface.
+Future<void> _tapOnScreen(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pump();
+  final rect = tester.getRect(finder);
+  final surface = tester.view.physicalSize / tester.view.devicePixelRatio;
+  expect(rect.top, greaterThanOrEqualTo(0));
+  expect(rect.left, greaterThanOrEqualTo(0));
+  expect(rect.bottom, lessThanOrEqualTo(surface.height));
+  expect(rect.right, lessThanOrEqualTo(surface.width));
+  await tester.tap(finder);
+}
+
 final _syntheticPng = base64Decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==');
 FamilyArchiveAsset _visualAsset({bool video = false}) => FamilyArchiveAsset(
   id: familyTestID(50), kind: video ? 'video' : 'photo', capturedAt: 1700000000000,
@@ -278,20 +292,39 @@ void main() {
     await tester.scrollUntilVisible(find.text('外婆的记录'), 250);
     final otherCard = find.ancestor(of: find.text('外婆的记录'), matching: find.byType(Card)).first;
     final hide = find.descendant(of: otherCard, matching: find.text('从家庭时光隐藏'));
-    await tester.ensureVisible(hide);
-    await tester.tap(hide);
+    await _tapOnScreen(tester, hide);
     await tester.pumpAndSettle();
     expect(controller.moderated, 0);
     expect(find.textContaining('不会删除或改写原件'), findsOneWidget);
-    await tester.tap(find.text('确认隐藏'));
+    await _tapOnScreen(tester, find.text('确认隐藏'));
     await tester.pumpAndSettle();
     expect(controller.moderated, 1);
     await tester.scrollUntilVisible(find.text('恢复家庭展示'), 250);
-    await tester.tap(find.text('恢复家庭展示'));
+    await _tapOnScreen(tester, find.text('恢复家庭展示'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('确认恢复展示'));
+    await _tapOnScreen(tester, find.text('确认恢复展示'));
     await tester.pumpAndSettle();
     expect(controller.moderated, 2);
+  });
+
+  testWidgets('hide confirmation stays on screen at iPhone SE width', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(320, 568));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final controller = _ScreenController(fixture);
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(_screen(fixture, controller));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('外婆的记录'), 200);
+    final otherCard = find.ancestor(of: find.text('外婆的记录'), matching: find.byType(Card)).first;
+    final hide = find.descendant(of: otherCard, matching: find.text('从家庭时光隐藏'));
+    await tester.scrollUntilVisible(hide, 120);
+    await _tapOnScreen(tester, hide);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('不会删除或改写原件'), findsOneWidget);
+    await _tapOnScreen(tester, find.text('确认隐藏'));
+    await tester.pumpAndSettle();
+    expect(controller.moderated, 1);
+    expect(find.text('确认隐藏'), findsNothing);
   });
 
   testWidgets('verified synthetic photo preview opens the original image viewer', (tester) async {

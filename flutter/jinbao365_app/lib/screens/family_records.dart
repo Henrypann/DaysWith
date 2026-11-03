@@ -160,6 +160,10 @@ class _FamilyRecordsScreenState extends State<FamilyRecordsScreen> {
   Future<void> _moderate(FamilyArchiveRecord record, {required bool hidden}) async {
     final controller = _controller;
     final accepted = await showDialog<bool>(context: context, builder: (context) => AlertDialog(
+      // Title and explanation scroll; the confirm action stays on screen at
+      // SE width and the 800×600 test surface.
+      scrollable: true,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       title: Text(hidden ? '从家庭时光隐藏这条记录？' : '恢复这条记录的展示？'),
       content: Text('家庭：${widget.selectedFamily.name}\n记录：${record.title.trim().isEmpty ? '生活记录' : record.title}\n'
         '署名：${_owner(record.ownerMemberID)}\n\n'
