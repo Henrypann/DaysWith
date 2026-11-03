@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 
 import 'anniversaries.dart';
 import 'cos_client.dart';
+import 'cos_storage_provider.dart';
+import 'storage_provider.dart';
 import 'digest.dart';
 import 'errors.dart';
 import 'json_codec.dart';
@@ -20,16 +22,20 @@ class ChainSnapshot {
   final int createdAt;
   final V1Manifest manifest;
 
-  const ChainSnapshot(
-      {required this.parent, required this.prefix, required this.writer, required this.createdAt, required this.manifest});
+  const ChainSnapshot({
+    required this.parent,
+    required this.prefix,
+    required this.writer,
+    required this.createdAt,
+    required this.manifest,
+  });
 }
 
 bool _validChain(ParentIdentity parent, String chainPrefix) {
   final root = parent.prefix;
   if (!chainPrefix.startsWith(root)) return false;
   final suffix = chainPrefix.substring(root.length);
-  return suffix.isEmpty ||
-      (suffix.endsWith('/') && V1Layout.isDeviceSegment(suffix.substring(0, suffix.length - 1)));
+  return suffix.isEmpty || (suffix.endsWith('/') && V1Layout.isDeviceSegment(suffix.substring(0, suffix.length - 1)));
 }
 
 /// A bounded image reference derived from a validated family manifest, never an arbitrary URL.
@@ -58,7 +64,8 @@ class RemotePreview {
   String get id => '${parent.folder}:$sha256';
 
   void validate() {
-    final ok = _validChain(parent, chainPrefix) &&
+    final ok =
+        _validChain(parent, chainPrefix) &&
         sha256Pattern.hasMatch(sha256) &&
         objectKey == V1Layout.objectKey(prefix: chainPrefix, sha256: sha256) &&
         byteCount >= 1 &&
@@ -97,14 +104,14 @@ class RemotePreview {
   }
 
   Map<String, Object?> toJson() => {
-        'assetID': assetID,
-        'parent': parent.folder,
-        'chainPrefix': chainPrefix,
-        'objectKey': objectKey,
-        'sha256': sha256,
-        'byteCount': byteCount,
-        'contentType': contentType,
-      };
+    'assetID': assetID,
+    'parent': parent.folder,
+    'chainPrefix': chainPrefix,
+    'objectKey': objectKey,
+    'sha256': sha256,
+    'byteCount': byteCount,
+    'contentType': contentType,
+  };
 
   @override
   bool operator ==(Object other) => other is RemotePreview && _deep.equals(toJson(), other.toJson());
@@ -143,7 +150,8 @@ class RemoteResource {
   });
 
   void validate() {
-    final ok = _validChain(parent, chainPrefix) &&
+    final ok =
+        _validChain(parent, chainPrefix) &&
         _roles.contains(role) &&
         sha256Pattern.hasMatch(sha256) &&
         objectKey == V1Layout.objectKey(prefix: chainPrefix, sha256: sha256) &&
@@ -187,17 +195,17 @@ class RemoteResource {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'assetID': assetID,
-        'role': role,
-        'parent': parent.folder,
-        'chainPrefix': chainPrefix,
-        'objectKey': objectKey,
-        'sha256': sha256,
-        'byteCount': byteCount,
-        'contentType': contentType,
-        'originalFilename': originalFilename,
-      };
+    'id': id,
+    'assetID': assetID,
+    'role': role,
+    'parent': parent.folder,
+    'chainPrefix': chainPrefix,
+    'objectKey': objectKey,
+    'sha256': sha256,
+    'byteCount': byteCount,
+    'contentType': contentType,
+    'originalFilename': originalFilename,
+  };
 
   @override
   bool operator ==(Object other) => other is RemoteResource && _deep.equals(toJson(), other.toJson());
@@ -225,11 +233,11 @@ class RemoteMedia {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'kind': kind,
-        'capturedAt': capturedAt,
-        'resources': resources.map((r) => r.toJson()).toList(),
-      };
+    'id': id,
+    'kind': kind,
+    'capturedAt': capturedAt,
+    'resources': resources.map((r) => r.toJson()).toList(),
+  };
 
   @override
   bool operator ==(Object other) => other is RemoteMedia && _deep.equals(toJson(), other.toJson());
@@ -292,18 +300,18 @@ class RemoteMoment {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'parent': parent.folder,
-        'title': title,
-        'note': note,
-        'occurredAt': occurredAt,
-        'readOnly': readOnly,
-        'mediaCount': mediaCount,
-        if (previewObjectKey != null) 'previewObjectKey': previewObjectKey,
-        if (localPreviewPath != null) 'localPreviewPath': localPreviewPath,
-        'previews': previews.map((p) => p.toJson()).toList(),
-        'media': media.map((m) => m.toJson()).toList(),
-      };
+    'id': id,
+    'parent': parent.folder,
+    'title': title,
+    'note': note,
+    'occurredAt': occurredAt,
+    'readOnly': readOnly,
+    'mediaCount': mediaCount,
+    if (previewObjectKey != null) 'previewObjectKey': previewObjectKey,
+    if (localPreviewPath != null) 'localPreviewPath': localPreviewPath,
+    'previews': previews.map((p) => p.toJson()).toList(),
+    'media': media.map((m) => m.toJson()).toList(),
+  };
 
   @override
   bool operator ==(Object other) => other is RemoteMoment && _deep.equals(toJson(), other.toJson());
@@ -361,19 +369,22 @@ abstract final class ArchiveMerge {
       for (final assetID in copy.moment.assetIDs) {
         final asset = assetFor(assetID);
         if (asset == null) continue;
-        final resource = resources.firstWhereOrNull((r) =>
-            r.assetID.toUpperCase() == assetID.toUpperCase() &&
-            r.role == 'preview' &&
-            asset.resourceIDs.map((id) => id.toUpperCase()).contains(r.id.toUpperCase()));
+        final resource = resources.firstWhereOrNull(
+          (r) =>
+              r.assetID.toUpperCase() == assetID.toUpperCase() &&
+              r.role == 'preview' &&
+              asset.resourceIDs.map((id) => id.toUpperCase()).contains(r.id.toUpperCase()),
+        );
         if (resource == null) continue;
         final reference = RemotePreview(
-            assetID: assetID,
-            parent: copy.parent,
-            chainPrefix: copy.prefix,
-            objectKey: resource.objectKey,
-            sha256: resource.sha256,
-            byteCount: resource.byteCount,
-            contentType: resource.contentType);
+          assetID: assetID,
+          parent: copy.parent,
+          chainPrefix: copy.prefix,
+          objectKey: resource.objectKey,
+          sha256: resource.sha256,
+          byteCount: resource.byteCount,
+          contentType: resource.contentType,
+        );
         if (reference.isValid) previews.add(reference);
       }
       final media = <RemoteMedia>[];
@@ -382,35 +393,39 @@ abstract final class ArchiveMerge {
         if (asset == null) continue;
         final originals = <RemoteResource>[];
         for (final resourceID in asset.resourceIDs) {
-          final r = resources.firstWhereOrNull((r) =>
-              r.id.toUpperCase() == resourceID.toUpperCase() && r.assetID.toUpperCase() == assetID.toUpperCase());
+          final r = resources.firstWhereOrNull(
+            (r) => r.id.toUpperCase() == resourceID.toUpperCase() && r.assetID.toUpperCase() == assetID.toUpperCase(),
+          );
           if (r == null) continue;
           final reference = RemoteResource(
-              id: r.id,
-              assetID: assetID,
-              role: r.role,
-              parent: copy.parent,
-              chainPrefix: copy.prefix,
-              objectKey: r.objectKey,
-              sha256: r.sha256,
-              byteCount: r.byteCount,
-              contentType: r.contentType,
-              originalFilename: r.originalFilename);
+            id: r.id,
+            assetID: assetID,
+            role: r.role,
+            parent: copy.parent,
+            chainPrefix: copy.prefix,
+            objectKey: r.objectKey,
+            sha256: r.sha256,
+            byteCount: r.byteCount,
+            contentType: r.contentType,
+            originalFilename: r.originalFilename,
+          );
           if (reference.isValid) originals.add(reference);
         }
         media.add(RemoteMedia(id: assetID, kind: asset.kind, capturedAt: asset.capturedAt, resources: originals));
       }
-      result.add(RemoteMoment(
-        id: id,
-        parent: copy.parent,
-        title: copy.moment.title,
-        note: copy.moment.note,
-        occurredAt: copy.moment.occurredAt,
-        mediaCount: copy.moment.assetIDs.length,
-        previewObjectKey: previews.firstOrNull?.objectKey,
-        previews: previews,
-        media: media,
-      ));
+      result.add(
+        RemoteMoment(
+          id: id,
+          parent: copy.parent,
+          title: copy.moment.title,
+          note: copy.moment.note,
+          occurredAt: copy.moment.occurredAt,
+          mediaCount: copy.moment.assetIDs.length,
+          previewObjectKey: previews.firstOrNull?.objectKey,
+          previews: previews,
+          media: media,
+        ),
+      );
     }
     return result;
   }
@@ -427,13 +442,14 @@ abstract final class ArchiveMerge {
           continue;
         }
         final candidate = RemoteAnniversary(
-            recordID: item.id,
-            owner: item.owner,
-            title: item.title,
-            date: item.date,
-            deletedAt: item.deletedAt,
-            sourcePrefix: source.prefix,
-            updatedAt: source.createdAt);
+          recordID: item.id,
+          owner: item.owner,
+          title: item.title,
+          date: item.date,
+          deletedAt: item.deletedAt,
+          sourcePrefix: source.prefix,
+          updatedAt: source.createdAt,
+        );
         final key = '${item.owner.folder}:${item.id.toUpperCase()}';
         final existing = winners[key];
         if (existing != null && existing.updatedAt > candidate.updatedAt) continue;
@@ -471,13 +487,27 @@ class FamilyArchive {
 abstract final class FamilyReader {
   /// Lists dad and mom only. Legacy roots stay read-only. This device's own chain is skipped.
   /// `life/v1/test/` is not part of the family read.
-  static Future<List<RemoteMoment>> read(CosClient client,
-          {required ParentIdentity owner, required String deviceID, required bool testBuild}) async =>
-      (await readArchive(client, owner: owner, deviceID: deviceID, testBuild: testBuild)).moments;
+  static Future<List<RemoteMoment>> read(
+    CosClient client, {
+    required ParentIdentity owner,
+    required String deviceID,
+    required bool testBuild,
+  }) async => (await readArchive(client, owner: owner, deviceID: deviceID, testBuild: testBuild)).moments;
 
-  static Future<FamilyArchive> readArchive(CosClient client,
-      {required ParentIdentity owner, required String deviceID, required bool testBuild}) async {
-    if (client.configuration.prefix != 'life/v1/') throw const CosFailure(ConnectionFailure.configuration);
+  static Future<FamilyArchive> readArchive(
+    CosClient client, {
+    required ParentIdentity owner,
+    required String deviceID,
+    required bool testBuild,
+  }) => readStorageArchive(CosStorageProvider(client), owner: owner, deviceID: deviceID, testBuild: testBuild);
+
+  static Future<FamilyArchive> readStorageArchive(
+    StorageProvider client, {
+    required ParentIdentity owner,
+    required String deviceID,
+    required bool testBuild,
+  }) async {
+    if (client.identity.prefix != 'life/v1/') throw const CosFailure(ConnectionFailure.configuration);
     final sources = <ChainSnapshot>[];
     for (final parent in [owner.other, owner]) {
       final root = parent.prefix;
@@ -488,22 +518,27 @@ abstract final class FamilyReader {
           : null;
       for (final chain in chains) {
         if (own != null && chain == own) continue;
-        final receipt = await latest(client, chain);
+        final receipt = await latestStorage(client, chain);
         if (receipt == null) continue;
         if (parent == owner && receipt.commit.writerDeviceID.toUpperCase() == deviceID.toUpperCase()) continue;
-        sources.add(ChainSnapshot(
-          parent: parent,
-          prefix: chain,
-          writer: receipt.commit.writerDeviceID,
-          createdAt: receipt.commit.createdAt,
-          manifest: receipt.manifest,
-        ));
+        sources.add(
+          ChainSnapshot(
+            parent: parent,
+            prefix: chain,
+            writer: receipt.commit.writerDeviceID,
+            createdAt: receipt.commit.createdAt,
+            manifest: receipt.manifest,
+          ),
+        );
       }
     }
     return FamilyArchive(moments: ArchiveMerge.merge(sources), anniversaries: ArchiveMerge.mergeAnniversaries(sources));
   }
 
-  static Future<CommitReceipt?> latest(CosClient client, String prefix) async {
+  static Future<CommitReceipt?> latest(CosClient client, String prefix) =>
+      latestStorage(CosStorageProvider(client), prefix);
+
+  static Future<CommitReceipt?> latestStorage(StorageProvider client, String prefix) async {
     final keys = (await client.list(prefix: '${prefix}commits/'))..sort();
     V1Commit? previous;
     String? previousHash;
@@ -511,7 +546,12 @@ abstract final class FamilyReader {
       final bytes = await client.get(key: key);
       final commit = V1Json.decodeCommit(bytes);
       V1Validator.validateCommit(
-          commit: commit, key: key, prefix: prefix, previous: previous, previousHash: previousHash);
+        commit: commit,
+        key: key,
+        prefix: prefix,
+        previous: previous,
+        previousHash: previousHash,
+      );
       previous = commit;
       previousHash = Digest.sha256Hex(bytes);
     }

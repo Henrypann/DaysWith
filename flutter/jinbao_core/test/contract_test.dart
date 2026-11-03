@@ -310,7 +310,7 @@ void main() {
     final session = AppSession(deviceID: deviceA, testBuild: true);
     expect(session.phase, AppPhase.chooseIdentity);
     session.confirmIdentity(ParentIdentity.dad);
-    expect(session.phase, AppPhase.connectCloud);
+    expect(session.phase, AppPhase.timeline);
     expect(() => session.confirmIdentity(ParentIdentity.mom), throwsA(isA<ContractError>()));
     session.confirmIdentity(ParentIdentity.dad);
     session.connectPlaceholder(bucket: 'example-1234567890', region: 'ap-shanghai');

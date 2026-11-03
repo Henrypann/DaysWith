@@ -23,7 +23,7 @@ void main() {
 
   test('blank first-run fields can enter a local placeholder, never a verified connection', () {
     final state = session();
-    expect(state.phase, AppPhase.connectCloud);
+    expect(state.phase, AppPhase.timeline);
     expect(() => state.connectVerified(bucket: '', region: ''), throwsA(isA<ContractError>()));
     state.connectPlaceholder(bucket: '', region: '');
     expect(state.phase, AppPhase.timeline);

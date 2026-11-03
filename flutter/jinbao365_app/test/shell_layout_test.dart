@@ -8,7 +8,7 @@ import 'package:jinbao_core/jinbao_core.dart';
 
 void main() {
   testWidgets(
-    'capsule leaves the content visible and all tab actions reachable',
+    'four navigation entries leave content visible and recording actions reachable',
     (tester) async {
       tester.view.physicalSize = const Size(720, 1600);
       tester.view.devicePixelRatio = 2;
@@ -54,8 +54,8 @@ void main() {
       );
 
       for (final (label, tab) in [
-        ('纪念', ShellTab.anniversaries),
-        ('回顾', ShellTab.review),
+        ('记录', ShellTab.anniversaries),
+        ('回忆', ShellTab.review),
         ('我的', ShellTab.my),
         ('时光', ShellTab.timeline),
       ]) {
@@ -68,11 +68,14 @@ void main() {
         expect(tester.takeException(), isNull);
       }
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(
+        find.descendant(of: navigation(), matching: find.text('记录')),
+      );
       await tester.pumpAndSettle();
       expect(find.text('拍照').hitTestable(), findsOneWidget);
-      expect(find.text('选照片或视频').hitTestable(), findsOneWidget);
+      expect(find.text('添加照片或视频').hitTestable(), findsOneWidget);
       expect(find.text('写文字').hitTestable(), findsOneWidget);
+      expect(find.text('纪念日').hitTestable(), findsOneWidget);
     },
   );
 }

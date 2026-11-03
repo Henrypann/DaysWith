@@ -7,6 +7,8 @@ import 'package:collection/collection.dart';
 import 'app_session.dart';
 import 'archive_merge.dart';
 import 'cos_client.dart';
+import 'cos_storage_provider.dart';
+import 'storage_provider.dart';
 import 'digest.dart';
 import 'errors.dart';
 import 'json_codec.dart';
@@ -19,16 +21,18 @@ import 'v1_validator.dart';
 
 const _deep = DeepCollectionEquality();
 
-enum BackupJobStatus { queued, uploading, paused, failed, completed }
+enum BackupJobStatus { queued, uploading, verifying, paused, failed, completed }
 
 /// Frozen publication payload. Credentials and transient transport handles never enter the archive.
 class BackupJob {
   final String id;
   final String bucket;
   final String region;
+  final StorageIdentity storageIdentity;
   final String prefix;
   final String writerDeviceID;
   final bool testBuild;
+
   /// Only this frozen, eligible local plan may introduce new cloud content.
   /// [manifestBytes] also contains the verified previous snapshot's records.
   final Uint8List localManifestBytes;
@@ -45,6 +49,7 @@ class BackupJob {
     required this.id,
     required this.bucket,
     required this.region,
+    required this.storageIdentity,
     required this.prefix,
     required this.writerDeviceID,
     required this.testBuild,
@@ -57,10 +62,10 @@ class BackupJob {
     required Set<String> completedObjectKeys,
     required bool snapshotUploaded,
     required String? lastError,
-  })  : _status = status,
-        _completedObjectKeys = completedObjectKeys,
-        _snapshotUploaded = snapshotUploaded,
-        _lastError = lastError;
+  }) : _status = status,
+       _completedObjectKeys = completedObjectKeys,
+       _snapshotUploaded = snapshotUploaded,
+       _lastError = lastError;
 
   BackupJobStatus get status => _status;
   Set<String> get completedObjectKeys => Set.unmodifiable(_completedObjectKeys);
@@ -115,6 +120,13 @@ class BackupJob {
       id: v.string('id'),
       bucket: v.string('bucket'),
       region: v.string('region'),
+      storageIdentity: v.has('storageIdentity')
+          ? StorageIdentity.fromJson(v.map['storageIdentity'] as Map<String, dynamic>)
+          : StorageIdentity(
+              providerId: 'cos',
+              endpoint: 'https://${v.string('bucket')}.cos.${v.string('region')}.myqcloud.com/',
+              prefix: v.string('prefix'),
+            ),
       prefix: v.string('prefix'),
       writerDeviceID: v.string('writerDeviceID'),
       testBuild: v.boolean('testBuild'),
@@ -136,22 +148,23 @@ class BackupJob {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'bucket': bucket,
-        'region': region,
-        'prefix': prefix,
-        'writerDeviceID': writerDeviceID,
-        'testBuild': testBuild,
-        'localManifestBytes': base64.encode(localManifestBytes),
-        'manifestBytes': base64.encode(manifestBytes),
-        'commitBytes': base64.encode(commitBytes),
-        'commitKey': commitKey,
-        'uploads': uploads.map((u) => u.toJson()).toList(),
-        'status': _status.name,
-        'completedObjectKeys': (_completedObjectKeys.toList()..sort()).cast<Object?>(),
-        'snapshotUploaded': _snapshotUploaded,
-        if (_lastError != null) 'lastError': _lastError,
-      };
+    'id': id,
+    'bucket': bucket,
+    'region': region,
+    'storageIdentity': storageIdentity.toJson(),
+    'prefix': prefix,
+    'writerDeviceID': writerDeviceID,
+    'testBuild': testBuild,
+    'localManifestBytes': base64.encode(localManifestBytes),
+    'manifestBytes': base64.encode(manifestBytes),
+    'commitBytes': base64.encode(commitBytes),
+    'commitKey': commitKey,
+    'uploads': uploads.map((u) => u.toJson()).toList(),
+    'status': _status.name,
+    'completedObjectKeys': (_completedObjectKeys.toList()..sort()).cast<Object?>(),
+    'snapshotUploaded': _snapshotUploaded,
+    if (_lastError != null) 'lastError': _lastError,
+  };
 
   @override
   bool operator ==(Object other) => other is BackupJob && _deep.equals(toJson(), other.toJson());
@@ -162,20 +175,36 @@ class BackupJob {
 
 abstract final class BackupQueue {
   /// Persist this result before calling [advance]. A retry must reuse its exact bytes and request ID.
-  static Future<BackupJob> prepare(CosClient client, AppSession session, {required int now, String? requestID}) async {
+  static Future<BackupJob> prepare(CosClient client, AppSession session, {required int now, String? requestID}) =>
+      prepareWithProvider(CosStorageProvider(client), session, now: now, requestID: requestID);
+
+  static Future<BackupJob> prepareWithProvider(
+    StorageProvider client,
+    AppSession session, {
+    required int now,
+    String? requestID,
+  }) async {
     final plan = BackupPlan.manifest(session, now: now);
-    if (client.configuration.prefix != plan.prefix ||
-        client.configuration.bucket != session.link.bucket ||
-        client.configuration.region != session.link.region) {
+    final destination = session.link.storageIdentity;
+    if (client.identity.prefix != plan.prefix ||
+        destination == null ||
+        client.identity.providerId != destination.providerId ||
+        client.identity.endpoint != destination.endpoint) {
       throw const CosFailure(ConnectionFailure.configuration);
     }
-    final previous = await FamilyReader.latest(client, plan.prefix);
+    final previous = await FamilyReader.latestStorage(client, plan.prefix);
     if (previous != null && previous.commit.writerDeviceID.toUpperCase() != session.deviceID.toUpperCase()) {
       throw const CosFailure(ConnectionFailure.conflict);
     }
     final manifestBytes = V1Json.encodeManifest(_completeSnapshot(previous?.manifest, plan.manifest, plan.prefix));
     final manifestHash = Digest.sha256Hex(manifestBytes);
     final duplicate = previous?.commit.manifestHash == manifestHash;
+    // A matching manifest proves publication, not the continued existence of media.
+    if (duplicate) {
+      for (final resource in previous!.manifest.resources) {
+        await client.verifyObject(key: resource.objectKey, byteCount: resource.byteCount, sha256: resource.sha256);
+      }
+    }
     final commit = duplicate
         ? previous!.commit
         : V1Commit(
@@ -190,11 +219,12 @@ abstract final class BackupQueue {
     final commitKey = plan.prefix + V1Json.commitRelativeKey(commit.sequence);
     if (!duplicate) {
       V1Validator.validateCommit(
-          commit: commit,
-          key: commitKey,
-          prefix: plan.prefix,
-          previous: previous?.commit,
-          previousHash: previous?.commitHash);
+        commit: commit,
+        key: commitKey,
+        prefix: plan.prefix,
+        previous: previous?.commit,
+        previousHash: previous?.commitHash,
+      );
     }
     final unique = <String, BackupUpload>{};
     for (final upload in BackupPlan.uploads(session)) {
@@ -207,8 +237,9 @@ abstract final class BackupQueue {
     final keys = unique.keys.toList()..sort();
     return BackupJob._(
       id: commit.requestID,
-      bucket: client.configuration.bucket,
-      region: client.configuration.region,
+      bucket: session.link.bucket ?? '',
+      region: session.link.region ?? '',
+      storageIdentity: client.identity,
       prefix: plan.prefix,
       writerDeviceID: commit.writerDeviceID,
       testBuild: session.testBuild,
@@ -233,9 +264,25 @@ abstract final class BackupQueue {
     required String Function(String relativePath) resolve,
     required FutureOr<void> Function(BackupJob job) persist,
     bool Function() shouldPause = _never,
+  }) => advanceWithProvider(
+    CosStorageProvider(client),
+    session,
+    job,
+    resolve: resolve,
+    persist: persist,
+    shouldPause: shouldPause,
+  );
+
+  static Future<void> advanceWithProvider(
+    StorageProvider client,
+    AppSession session,
+    BackupJob job, {
+    required String Function(String relativePath) resolve,
+    required FutureOr<void> Function(BackupJob job) persist,
+    bool Function() shouldPause = _never,
   }) async {
-    validate(job, session, client);
-    if (job._status == BackupJobStatus.completed || job._status == BackupJobStatus.paused) return;
+    validateWithProvider(job, session, client);
+    if (job._status == BackupJobStatus.paused) return;
     Future<bool> pauseIfAsked() async {
       if (!shouldPause()) return false;
       job.pause();
@@ -255,18 +302,31 @@ abstract final class BackupQueue {
         if (await pauseIfAsked()) return;
         if (job._completedObjectKeys.contains(upload.objectKey)) {
           final head = await client.head(upload.objectKey);
-          if (head != null && head.byteCount == upload.byteCount && head.sha256 == upload.sha256) continue;
+          if (head != null &&
+              head.byteCount == upload.byteCount &&
+              (head.sha256 == null || head.sha256 == upload.sha256)) {
+            await client.verifyObject(key: upload.objectKey, byteCount: upload.byteCount, sha256: upload.sha256);
+            continue;
+          }
         }
+        job._status = BackupJobStatus.uploading;
+        await persist(job.copy());
         await client.putImmutableFile(
-            key: upload.objectKey,
-            filePath: resolve(upload.relativePath),
-            byteCount: upload.byteCount,
-            sha256: upload.sha256,
-            contentType: upload.contentType);
+          key: upload.objectKey,
+          filePath: resolve(upload.relativePath),
+          byteCount: upload.byteCount,
+          sha256: upload.sha256,
+          contentType: upload.contentType,
+        );
+        job._status = BackupJobStatus.verifying;
+        await persist(job.copy());
         final head = await client.head(upload.objectKey);
-        if (head == null || head.byteCount != upload.byteCount || head.sha256 != upload.sha256) {
+        if (head == null ||
+            head.byteCount != upload.byteCount ||
+            (head.sha256 != null && head.sha256 != upload.sha256)) {
           throw const CosFailure(ConnectionFailure.contentMismatch);
         }
+        await client.verifyObject(key: upload.objectKey, byteCount: upload.byteCount, sha256: upload.sha256);
         job._completedObjectKeys.add(upload.objectKey);
         await persist(job.copy());
       }
@@ -333,19 +393,23 @@ abstract final class BackupQueue {
   /// snapshot from this bucket's verified, current chain before allowing a PUT.
   /// Only the exact already-published job is an idempotent exception to the base
   /// head check; a different head requires a new plan, never a rewritten job.
-  static Future<bool> _verifyRemoteBase(CosClient client, BackupJob job, {bool verifyResources = true}) async {
-    final previous = await FamilyReader.latest(client, job.prefix);
+  static Future<bool> _verifyRemoteBase(StorageProvider client, BackupJob job, {bool verifyResources = true}) async {
+    final previous = await FamilyReader.latestStorage(client, job.prefix);
     final commit = job.commit;
     if (previous?.commitHash == Digest.sha256Hex(job.commitBytes)) {
+      for (final resource in previous!.manifest.resources) {
+        await client.verifyObject(key: resource.objectKey, byteCount: resource.byteCount, sha256: resource.sha256);
+      }
       return true;
     }
     if (previous?.commitHash != commit.parentHash) throw const CosFailure(ConnectionFailure.conflict);
     V1Validator.validateCommit(
-        commit: commit,
-        key: job.commitKey,
-        prefix: job.prefix,
-        previous: previous?.commit,
-        previousHash: previous?.commitHash);
+      commit: commit,
+      key: job.commitKey,
+      prefix: job.prefix,
+      previous: previous?.commit,
+      previousHash: previous?.commitHash,
+    );
     final expected = _completeSnapshot(previous?.manifest, job.localManifest, job.prefix);
     if (!const ListEquality<int>().equals(V1Json.encodeManifest(expected), job.manifestBytes)) {
       throw const CosFailure(ConnectionFailure.contentMismatch);
@@ -356,9 +420,12 @@ abstract final class BackupQueue {
       for (final resource in expected.resources) {
         if (localKeys.contains(resource.objectKey) || !checked.add(resource.objectKey)) continue;
         final head = await client.head(resource.objectKey);
-        if (head == null || head.byteCount != resource.byteCount || head.sha256 != resource.sha256) {
+        if (head == null ||
+            head.byteCount != resource.byteCount ||
+            (head.sha256 != null && head.sha256 != resource.sha256)) {
           throw const CosFailure(ConnectionFailure.contentMismatch);
         }
+        await client.verifyObject(key: resource.objectKey, byteCount: resource.byteCount, sha256: resource.sha256);
       }
     }
     return false;
@@ -389,32 +456,39 @@ abstract final class BackupQueue {
       anniversaries[value.id.toUpperCase()] = value;
     }
     final assetIDs = {for (final moment in moments.values) ...moment.assetIDs.map((id) => id.toUpperCase())};
-    final retainedAssets = [for (final key in assetIDs) if (assets[key] != null) assets[key]!];
+    final retainedAssets = [
+      for (final key in assetIDs)
+        if (assets[key] != null) assets[key]!,
+    ];
     final resourceIDs = {for (final asset in retainedAssets) ...asset.resourceIDs.map((id) => id.toUpperCase())};
     final manifest = V1Manifest(
       version: 2,
       moments: moments.values.toList()..sort((a, b) => a.id.compareTo(b.id)),
       assets: retainedAssets..sort((a, b) => a.id.compareTo(b.id)),
-      resources: [for (final key in resourceIDs) if (resources[key] != null) resources[key]!]
-        ..sort((a, b) => a.id.compareTo(b.id)),
+      resources: [
+        for (final key in resourceIDs)
+          if (resources[key] != null) resources[key]!,
+      ]..sort((a, b) => a.id.compareTo(b.id)),
       anniversaries: anniversaries.values.toList()..sort((a, b) => a.id.compareTo(b.id)),
     );
     V1Validator.validate(manifest: manifest, prefix: prefix);
     return manifest;
   }
 
-  static void validate(BackupJob job, AppSession session, CosClient client) {
-    final link = session.link;
+  static void validate(BackupJob job, AppSession session, CosClient client) =>
+      validateWithProvider(job, session, CosStorageProvider(client));
+
+  static void validateWithProvider(BackupJob job, AppSession session, StorageProvider client) {
+    final destination = session.link.storageIdentity;
     const configuration = CosFailure(ConnectionFailure.configuration);
-    if (link is! CloudVerified ||
-        link.bucket != job.bucket ||
-        link.region != job.region ||
+    if (!session.link.isVerified ||
+        destination == null ||
+        destination.providerId != job.storageIdentity.providerId ||
+        destination.endpoint != job.storageIdentity.endpoint ||
         session.testBuild != job.testBuild ||
         session.deviceID.toUpperCase() != job.writerDeviceID.toUpperCase() ||
         session.writerPrefix() != job.prefix ||
-        client.configuration.prefix != job.prefix ||
-        client.configuration.bucket != job.bucket ||
-        client.configuration.region != job.region ||
+        client.identity != job.storageIdentity ||
         V1Layout.isLegacyRoot(job.prefix)) {
       throw configuration;
     }

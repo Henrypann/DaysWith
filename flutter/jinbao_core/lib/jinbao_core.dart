@@ -22,3 +22,10 @@ export 'src/v1_json.dart';
 export 'src/v1_layout.dart';
 export 'src/v1_model.dart';
 export 'src/v1_validator.dart';
+
+export 'src/storage_provider.dart';
+export 'src/cos_storage_provider.dart';
+export 'src/webdav_provider.dart';
+export 'src/family.dart';
+export 'src/family_invitations.dart';
+export 'src/archive_restore.dart';

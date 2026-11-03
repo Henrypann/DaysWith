@@ -10,6 +10,7 @@ import 'cos_client.dart';
 import 'digest.dart';
 import 'errors.dart';
 import 'json_codec.dart';
+import 'storage_provider.dart';
 import 'text.dart';
 import 'time_zone.dart';
 import 'timeline.dart';
@@ -29,6 +30,22 @@ sealed class CloudLink {
   String? get bucket;
   String? get region;
   bool get isConnected => this is! CloudMissing;
+  bool get isVerified => this is CloudVerified || this is CloudWebDav;
+
+  StorageIdentity? get storageIdentity => switch (this) {
+    CloudVerified(:final bucket, :final region) => StorageIdentity(
+      providerId: 'cos',
+      endpoint: 'https://$bucket.cos.$region.myqcloud.com/',
+      prefix: 'life/v1/',
+    ),
+    CloudWebDav(:final endpoint, :final accountScope) => StorageIdentity(
+      providerId: 'webdav',
+      endpoint: endpoint,
+      accountScope: accountScope,
+      prefix: 'life/v1/',
+    ),
+    _ => null,
+  };
 
   /// Swift `Codable` shape: `{"missing":{}}`, `{"placeholder":{"bucket":…,"region":…}}`.
   Map<String, Object?> toJson();
@@ -39,6 +56,25 @@ sealed class CloudLink {
     final key = v.map.keys.single;
     if (key == 'missing') return const CloudMissing();
     final fields = JsonFields(v.map[key], 'link.$key');
+    if (key == 'webdav') {
+      final endpoint = fields.string('endpoint');
+      final uri = Uri.tryParse(endpoint);
+      if (uri == null ||
+          uri.scheme != 'https' ||
+          uri.host.isEmpty ||
+          uri.userInfo.isNotEmpty ||
+          uri.hasQuery ||
+          uri.hasFragment ||
+          !uri.path.endsWith('/') ||
+          uri.path == '/') {
+        throw const ContractError('link.webdav', 'Invalid secure storage directory.');
+      }
+      return CloudWebDav(
+        name: fields.string('name'),
+        endpoint: endpoint,
+        accountScope: fields.optionalString('accountScope'),
+      );
+    }
     final bucket = fields.string('bucket');
     final region = fields.string('region');
     return switch (key) {
@@ -73,8 +109,8 @@ class CloudPlaceholder extends CloudLink {
   const CloudPlaceholder({required this.bucket, required this.region});
   @override
   Map<String, Object?> toJson() => {
-        'placeholder': {'bucket': bucket, 'region': region}
-      };
+    'placeholder': {'bucket': bucket, 'region': region},
+  };
 }
 
 class CloudVerified extends CloudLink {
@@ -85,8 +121,24 @@ class CloudVerified extends CloudLink {
   const CloudVerified({required this.bucket, required this.region});
   @override
   Map<String, Object?> toJson() => {
-        'verified': {'bucket': bucket, 'region': region}
-      };
+    'verified': {'bucket': bucket, 'region': region},
+  };
+}
+
+/// Connection metadata only. NAS account and password remain in secure storage.
+class CloudWebDav extends CloudLink {
+  final String name;
+  final String endpoint;
+  final String? accountScope;
+  const CloudWebDav({required this.name, required this.endpoint, this.accountScope});
+  @override
+  String? get bucket => null;
+  @override
+  String? get region => null;
+  @override
+  Map<String, Object?> toJson() => {
+    'webdav': {'name': name, 'endpoint': endpoint, if (accountScope != null) 'accountScope': accountScope},
+  };
 }
 
 class LocalResource {
@@ -124,14 +176,14 @@ class LocalResource {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'role': role,
-        'contentType': contentType,
-        'originalFilename': originalFilename,
-        'byteCount': byteCount,
-        'sha256': sha256,
-        'relativePath': relativePath,
-      };
+    'id': id,
+    'role': role,
+    'contentType': contentType,
+    'originalFilename': originalFilename,
+    'byteCount': byteCount,
+    'sha256': sha256,
+    'relativePath': relativePath,
+  };
 
   @override
   bool operator ==(Object other) => other is LocalResource && _deep.equals(toJson(), other.toJson());
@@ -159,11 +211,11 @@ class CaptureMetadata {
   }
 
   Map<String, Object?> toJson() => {
-        'source': source,
-        if (timezoneOffsetMinutes != null) 'timezoneOffsetMinutes': timezoneOffsetMinutes,
-        if (localDateTime != null) 'localDateTime': localDateTime,
-        'isEstimated': isEstimated,
-      };
+    'source': source,
+    if (timezoneOffsetMinutes != null) 'timezoneOffsetMinutes': timezoneOffsetMinutes,
+    if (localDateTime != null) 'localDateTime': localDateTime,
+    'isEstimated': isEstimated,
+  };
 
   @override
   bool operator ==(Object other) => other is CaptureMetadata && _deep.equals(toJson(), other.toJson());
@@ -204,13 +256,13 @@ class LocalAsset {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'kind': kind,
-        'capturedAt': capturedAt,
-        if (provenance != null) 'provenance': provenance,
-        if (captureMetadata != null) 'captureMetadata': captureMetadata!.toJson(),
-        'resources': resources.map((r) => r.toJson()).toList(),
-      };
+    'id': id,
+    'kind': kind,
+    'capturedAt': capturedAt,
+    if (provenance != null) 'provenance': provenance,
+    if (captureMetadata != null) 'captureMetadata': captureMetadata!.toJson(),
+    'resources': resources.map((r) => r.toJson()).toList(),
+  };
 
   @override
   bool operator ==(Object other) => other is LocalAsset && _deep.equals(toJson(), other.toJson());
@@ -280,18 +332,18 @@ class LocalMoment {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'title': title,
-        'note': note,
-        'occurredAt': occurredAt,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-        'revision': revision,
-        if (trashedAt != null) 'trashedAt': trashedAt,
-        'parent': parent.folder,
-        'assets': assets.map((a) => a.toJson()).toList(),
-        'uploadEligibility': uploadEligibility.rawValue,
-      };
+    'id': id,
+    'title': title,
+    'note': note,
+    'occurredAt': occurredAt,
+    'createdAt': createdAt,
+    'updatedAt': updatedAt,
+    'revision': revision,
+    if (trashedAt != null) 'trashedAt': trashedAt,
+    'parent': parent.folder,
+    'assets': assets.map((a) => a.toJson()).toList(),
+    'uploadEligibility': uploadEligibility.rawValue,
+  };
 
   @override
   bool operator ==(Object other) => other is LocalMoment && _deep.equals(toJson(), other.toJson());
@@ -325,8 +377,8 @@ class ComposerDraft {
     this.timeWasEdited = false,
     this.hasImportedBatch = false,
     this.occurredAtIsEstimated = false,
-  })  : assets = assets ?? [],
-        id = id ?? newUuid();
+  }) : assets = assets ?? [],
+       id = id ?? newUuid();
 
   ComposerDraft copy() => ComposerDraft.fromJson(toJson());
 
@@ -350,18 +402,18 @@ class ComposerDraft {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'title': title,
-        'note': note,
-        'occurredAt': occurredAt,
-        'assets': assets.map((a) => a.toJson()).toList(),
-        'uploadEligibility': uploadEligibility.rawValue,
-        if (originalMomentID != null) 'originalMomentID': originalMomentID,
-        if (baselineRevision != null) 'baselineRevision': baselineRevision,
-        'timeWasEdited': timeWasEdited,
-        'hasImportedBatch': hasImportedBatch,
-        'occurredAtIsEstimated': occurredAtIsEstimated,
-      };
+    'id': id,
+    'title': title,
+    'note': note,
+    'occurredAt': occurredAt,
+    'assets': assets.map((a) => a.toJson()).toList(),
+    'uploadEligibility': uploadEligibility.rawValue,
+    if (originalMomentID != null) 'originalMomentID': originalMomentID,
+    if (baselineRevision != null) 'baselineRevision': baselineRevision,
+    'timeWasEdited': timeWasEdited,
+    'hasImportedBatch': hasImportedBatch,
+    'occurredAtIsEstimated': occurredAtIsEstimated,
+  };
 
   int get originalCount => assets.length;
 
@@ -397,18 +449,19 @@ class AppSession {
     List<RemoteAnniversary>? remoteAnniversaries,
     this.backupJob,
     Map<String, String>? committedDrafts,
-  })  : moments = moments ?? [],
-        remote = remote ?? [],
-        anniversaries = anniversaries ?? [],
-        remoteAnniversaries = remoteAnniversaries ?? [],
-        committedDrafts = committedDrafts ?? {};
+  }) : moments = moments ?? [],
+       remote = remote ?? [],
+       anniversaries = anniversaries ?? [],
+       remoteAnniversaries = remoteAnniversaries ?? [],
+       committedDrafts = committedDrafts ?? {};
 
   /// Deep copy, for callers that need Swift value semantics.
   AppSession copy() => PersistedArchive.fromJson(PersistedArchive.fromSession(this).toJson()).session();
 
   AppPhase get phase {
     if (identity == null) return AppPhase.chooseIdentity;
-    if (!link.isConnected) return AppPhase.connectCloud;
+    // Recording is local-first. A storage connection changes backup eligibility,
+    // never access to the local archive or the ability to create a record.
     return AppPhase.timeline;
   }
 
@@ -439,7 +492,7 @@ class AppSession {
   void disconnectCloud() => link = const CloudMissing();
 
   UploadEligibility get newUploadEligibility {
-    if (link is CloudVerified) return testBuild ? UploadEligibility.testOnly : UploadEligibility.eligible;
+    if (link.isVerified) return testBuild ? UploadEligibility.testOnly : UploadEligibility.eligible;
     return UploadEligibility.localOnly;
   }
 
@@ -656,7 +709,8 @@ class AppSession {
           for (final asset in moment.assets)
             TimelinePhoto(
               id: asset.id,
-              localPath: path(asset, (role) => role == 'preview') ??
+              localPath:
+                  path(asset, (role) => role == 'preview') ??
                   path(asset, (role) => role == 'photo' || role == 'livePhotoImage'),
               fullSizePath: path(asset, (role) => role == 'photo' || role == 'livePhotoImage'),
               kind: asset.kind,
@@ -665,28 +719,30 @@ class AppSession {
         ],
       );
     });
-    final remoteEntries = remote.map((item) => TimelineEntry(
-          id: item.id,
-          title: item.title,
-          note: item.note,
-          occurredAt: item.occurredAt,
-          parent: item.parent,
-          readOnly: true,
-          mediaCount: item.mediaCount,
-          previewPath: item.localPreviewPath,
-          provenanceLabel: null,
-          photos: item.media.isEmpty
-              ? [for (final preview in item.previews) TimelinePhoto(id: preview.assetID, remote: preview)]
-              : [
-                  for (final media in item.media)
-                    TimelinePhoto(
-                      id: media.id,
-                      remote: item.previews.firstWhereOrNull((p) => p.assetID == media.id),
-                      kind: media.kind,
-                      remoteResources: media.resources,
-                    ),
-                ],
-        ));
+    final remoteEntries = remote.map(
+      (item) => TimelineEntry(
+        id: item.id,
+        title: item.title,
+        note: item.note,
+        occurredAt: item.occurredAt,
+        parent: item.parent,
+        readOnly: true,
+        mediaCount: item.mediaCount,
+        previewPath: item.localPreviewPath,
+        provenanceLabel: null,
+        photos: item.media.isEmpty
+            ? [for (final preview in item.previews) TimelinePhoto(id: preview.assetID, remote: preview)]
+            : [
+                for (final media in item.media)
+                  TimelinePhoto(
+                    id: media.id,
+                    remote: item.previews.firstWhereOrNull((p) => p.assetID == media.id),
+                    kind: media.kind,
+                    remoteResources: media.resources,
+                  ),
+              ],
+      ),
+    );
     return [...local, ...remoteEntries];
   }
 
@@ -706,20 +762,39 @@ class AppSession {
     final result = <AnniversaryEntry>[
       for (final item in anniversaries)
         if (item.deletedAt == null && !AnniversaryCalendar.isDefault(item.id))
-          AnniversaryEntry(id: item.id, title: item.title, date: item.date, owner: item.owner, readOnly: item.owner != owner),
+          AnniversaryEntry(
+            id: item.id,
+            title: item.title,
+            date: item.date,
+            owner: item.owner,
+            readOnly: item.owner != owner,
+          ),
       for (final remoteItem in remoteAnniversaries)
         if (remoteItem.deletedAt == null &&
             !AnniversaryCalendar.isDefault(remoteItem.recordID) &&
             !anniversaries.any((a) => a.owner == remoteItem.owner && caseInsensitiveEquals(a.id, remoteItem.recordID)))
           AnniversaryEntry(
-              id: remoteItem.id, title: remoteItem.title, date: remoteItem.date, owner: remoteItem.owner, readOnly: true),
+            id: remoteItem.id,
+            title: remoteItem.title,
+            date: remoteItem.date,
+            owner: remoteItem.owner,
+            readOnly: true,
+          ),
     ];
     for (final item in AnniversaryCalendar.defaults) {
       final local = anniversaries.firstWhereOrNull((a) => a.owner == owner && caseInsensitiveEquals(a.id, item.id));
       if (local != null) {
         if (local.deletedAt == null) {
-          result.add(AnniversaryEntry(
-              id: local.id, title: local.title, date: local.date, owner: owner, readOnly: false, isDefault: true));
+          result.add(
+            AnniversaryEntry(
+              id: local.id,
+              title: local.title,
+              date: local.date,
+              owner: owner,
+              readOnly: false,
+              isDefault: true,
+            ),
+          );
         }
         continue;
       }
@@ -731,17 +806,28 @@ class AppSession {
       final remoteItem = remoteCopies.firstOrNull;
       if (remoteItem != null) {
         if (remoteItem.deletedAt == null) {
-          result.add(AnniversaryEntry(
+          result.add(
+            AnniversaryEntry(
               id: remoteItem.id,
               title: remoteItem.title,
               date: remoteItem.date,
               owner: remoteItem.owner,
               readOnly: true,
-              isDefault: true));
+              isDefault: true,
+            ),
+          );
         }
       } else {
-        result.add(AnniversaryEntry(
-            id: item.id, title: item.title, date: item.date, owner: owner, readOnly: false, isDefault: true));
+        result.add(
+          AnniversaryEntry(
+            id: item.id,
+            title: item.title,
+            date: item.date,
+            owner: owner,
+            readOnly: false,
+            isDefault: true,
+          ),
+        );
       }
     }
     return result;
@@ -769,12 +855,13 @@ class AppSession {
       throw const ContractError('anniversary', '其他设备创建的纪念日只读。');
     }
     final item = LocalAnniversary(
-        id: recordID,
-        owner: owner,
-        title: cleanTitle,
-        date: validDate,
-        updatedAt: now,
-        uploadEligibility: newUploadEligibility);
+      id: recordID,
+      owner: owner,
+      title: cleanTitle,
+      date: validDate,
+      updatedAt: now,
+      uploadEligibility: newUploadEligibility,
+    );
     anniversaries.add(item);
     return LocalAnniversary.fromJson(item.toJson());
   }
@@ -795,14 +882,17 @@ class AppSession {
     if (remoteAnniversaries.any((r) => caseInsensitiveEquals(r.recordID, id)) || item == null) {
       throw const ContractError('anniversary', '只能删除这台手机创建的纪念日。');
     }
-    anniversaries.add(LocalAnniversary(
+    anniversaries.add(
+      LocalAnniversary(
         id: item.id,
         owner: owner,
         title: item.title,
         date: item.date,
         deletedAt: now,
         updatedAt: now,
-        uploadEligibility: newUploadEligibility));
+        uploadEligibility: newUploadEligibility,
+      ),
+    );
   }
 
   List<V1Anniversary> backupAnniversaries() {
@@ -830,7 +920,7 @@ class AppSession {
 }
 
 class PersistedArchive {
-  static const currentVersion = 2;
+  static const currentVersion = 3;
   int schemaVersion;
   String deviceID;
   bool testBuild;
@@ -860,19 +950,19 @@ class PersistedArchive {
   });
 
   factory PersistedArchive.fromSession(AppSession session) => PersistedArchive._(
-        schemaVersion: currentVersion,
-        deviceID: session.deviceID,
-        testBuild: session.testBuild,
-        identityFolder: session.identity?.folder,
-        link: session.link,
-        moments: session.moments,
-        draft: session.draft,
-        remote: session.remote,
-        anniversaries: session.anniversaries,
-        remoteAnniversaries: session.remoteAnniversaries,
-        backupJob: session.backupJob,
-        committedDrafts: session.committedDrafts,
-      );
+    schemaVersion: currentVersion,
+    deviceID: session.deviceID,
+    testBuild: session.testBuild,
+    identityFolder: session.identity?.folder,
+    link: session.link,
+    moments: session.moments,
+    draft: session.draft,
+    remote: session.remote,
+    anniversaries: session.anniversaries,
+    remoteAnniversaries: session.remoteAnniversaries,
+    backupJob: session.backupJob,
+    committedDrafts: session.committedDrafts,
+  );
 
   factory PersistedArchive.fromJson(Object? json) {
     final v = JsonFields(json, 'archive');
@@ -895,41 +985,40 @@ class PersistedArchive {
       draft: v.has('draft') ? ComposerDraft.fromJson(v.raw('draft')) : null,
       remote: (v.optionalList('remote') ?? const []).map(RemoteMoment.fromJson).toList(),
       anniversaries: (v.optionalList('anniversaries') ?? const []).map(LocalAnniversary.fromJson).toList(),
-      remoteAnniversaries:
-          (v.optionalList('remoteAnniversaries') ?? const []).map(RemoteAnniversary.fromJson).toList(),
+      remoteAnniversaries: (v.optionalList('remoteAnniversaries') ?? const []).map(RemoteAnniversary.fromJson).toList(),
       backupJob: v.has('backupJob') ? BackupJob.fromJson(v.raw('backupJob')) : null,
       committedDrafts: committed == null ? {} : {for (final key in committed.map.keys) key: committed.string(key)},
     );
   }
 
   Map<String, Object?> toJson() => {
-        'schemaVersion': schemaVersion,
-        'deviceID': deviceID,
-        'testBuild': testBuild,
-        if (identityFolder != null) 'identityFolder': identityFolder,
-        'link': link.toJson(),
-        'moments': moments.map((m) => m.toJson()).toList(),
-        if (draft != null) 'draft': draft!.toJson(),
-        'remote': remote.map((r) => r.toJson()).toList(),
-        'anniversaries': anniversaries.map((a) => a.toJson()).toList(),
-        'remoteAnniversaries': remoteAnniversaries.map((a) => a.toJson()).toList(),
-        if (backupJob != null) 'backupJob': backupJob!.toJson(),
-        'committedDrafts': Map<String, Object?>.of(committedDrafts),
-      };
+    'schemaVersion': schemaVersion,
+    'deviceID': deviceID,
+    'testBuild': testBuild,
+    if (identityFolder != null) 'identityFolder': identityFolder,
+    'link': link.toJson(),
+    'moments': moments.map((m) => m.toJson()).toList(),
+    if (draft != null) 'draft': draft!.toJson(),
+    'remote': remote.map((r) => r.toJson()).toList(),
+    'anniversaries': anniversaries.map((a) => a.toJson()).toList(),
+    'remoteAnniversaries': remoteAnniversaries.map((a) => a.toJson()).toList(),
+    if (backupJob != null) 'backupJob': backupJob!.toJson(),
+    'committedDrafts': Map<String, Object?>.of(committedDrafts),
+  };
 
   AppSession session() => AppSession(
-        deviceID: deviceID,
-        testBuild: testBuild,
-        identity: ParentIdentity.fromFolder(identityFolder),
-        link: link,
-        moments: moments,
-        draft: draft,
-        remote: remote,
-        anniversaries: anniversaries,
-        remoteAnniversaries: remoteAnniversaries,
-        backupJob: backupJob,
-        committedDrafts: committedDrafts,
-      );
+    deviceID: deviceID,
+    testBuild: testBuild,
+    identity: ParentIdentity.fromFolder(identityFolder),
+    link: link,
+    moments: moments,
+    draft: draft,
+    remote: remote,
+    anniversaries: anniversaries,
+    remoteAnniversaries: remoteAnniversaries,
+    backupJob: backupJob,
+    committedDrafts: committedDrafts,
+  );
 
   @override
   bool operator ==(Object other) => other is PersistedArchive && _deep.equals(toJson(), other.toJson());
@@ -947,7 +1036,7 @@ class BackupManifestPlan {
 
 abstract final class BackupPlan {
   static BackupManifestPlan manifest(AppSession session, {required int now}) {
-    if (session.link is! CloudVerified) {
+    if (!session.link.isVerified) {
       throw const ContractError('backup', '占位连接不会上传。请在真机填写密钥后再备份。');
     }
     final prefix = session.writerPrefix();
@@ -1092,12 +1181,12 @@ class BackupUpload {
   }
 
   Map<String, Object?> toJson() => {
-        'objectKey': objectKey,
-        'relativePath': relativePath,
-        'contentType': contentType,
-        'sha256': sha256,
-        'byteCount': byteCount,
-      };
+    'objectKey': objectKey,
+    'relativePath': relativePath,
+    'contentType': contentType,
+    'sha256': sha256,
+    'byteCount': byteCount,
+  };
 
   @override
   bool operator ==(Object other) => other is BackupUpload && _deep.equals(toJson(), other.toJson());
@@ -1108,36 +1197,64 @@ class BackupUpload {
 
 abstract final class BackupPublisher {
   /// Small in-memory bodies keyed by object key or SHA-256 (tests and metadata-sized media).
-  static Future<V1Commit> publishBytes(CosClient client, AppSession session,
-      {required Map<String, List<int>> files, required int now, required String requestID}) {
-    return _publish(client, session, now: now, requestID: requestID, upload: (resource) async {
-      final bytes = files[resource.objectKey] ?? files[resource.sha256];
-      if (bytes == null) throw ContractError(resource.objectKey, '原件还在本地，暂时找不到。');
-      if (Digest.sha256Hex(bytes) != resource.sha256 || bytes.length != resource.byteCount) {
-        throw ContractError(resource.objectKey, '原件和记录里的校验不一致，已停止备份。');
-      }
-      await client.putImmutable(key: resource.objectKey, body: bytes, contentType: resource.contentType);
-    });
+  static Future<V1Commit> publishBytes(
+    CosClient client,
+    AppSession session, {
+    required Map<String, List<int>> files,
+    required int now,
+    required String requestID,
+  }) {
+    return _publish(
+      client,
+      session,
+      now: now,
+      requestID: requestID,
+      upload: (resource) async {
+        final bytes = files[resource.objectKey] ?? files[resource.sha256];
+        if (bytes == null) throw ContractError(resource.objectKey, '原件还在本地，暂时找不到。');
+        if (Digest.sha256Hex(bytes) != resource.sha256 || bytes.length != resource.byteCount) {
+          throw ContractError(resource.objectKey, '原件和记录里的校验不一致，已停止备份。');
+        }
+        await client.putImmutable(key: resource.objectKey, body: bytes, contentType: resource.contentType);
+      },
+    );
   }
 
   /// Production backup retains only file paths. Each media object is staged, verified, uploaded,
   /// and released independently instead of loading all originals into memory.
-  static Future<V1Commit> publishFiles(CosClient client, AppSession session,
-      {required Map<String, String> filePaths, required int now, required String requestID}) {
-    return _publish(client, session, now: now, requestID: requestID, upload: (resource) async {
-      final path = filePaths[resource.objectKey] ?? filePaths[resource.sha256];
-      if (path == null) throw ContractError(resource.objectKey, '原件还在本地，暂时找不到。');
-      await client.putImmutableFile(
+  static Future<V1Commit> publishFiles(
+    CosClient client,
+    AppSession session, {
+    required Map<String, String> filePaths,
+    required int now,
+    required String requestID,
+  }) {
+    return _publish(
+      client,
+      session,
+      now: now,
+      requestID: requestID,
+      upload: (resource) async {
+        final path = filePaths[resource.objectKey] ?? filePaths[resource.sha256];
+        if (path == null) throw ContractError(resource.objectKey, '原件还在本地，暂时找不到。');
+        await client.putImmutableFile(
           key: resource.objectKey,
           filePath: path,
           byteCount: resource.byteCount,
           sha256: resource.sha256,
-          contentType: resource.contentType);
-    });
+          contentType: resource.contentType,
+        );
+      },
+    );
   }
 
-  static Future<V1Commit> _publish(CosClient client, AppSession session,
-      {required int now, required String requestID, required Future<void> Function(V1Resource) upload}) async {
+  static Future<V1Commit> _publish(
+    CosClient client,
+    AppSession session, {
+    required int now,
+    required String requestID,
+    required Future<void> Function(V1Resource) upload,
+  }) async {
     // Planning first preserves the no-network guarantee for placeholder/local-only archives.
     final planned = BackupPlan.manifest(session, now: now);
     if (client.configuration.prefix != planned.prefix) throw const CosFailure(ConnectionFailure.configuration);
@@ -1150,7 +1267,10 @@ abstract final class BackupPublisher {
     }
     final manifestHash = Digest.sha256Hex(planned.bytes);
     await client.putImmutable(
-        key: '${planned.prefix}snapshots/$manifestHash.json', body: planned.bytes, contentType: 'application/json');
+      key: '${planned.prefix}snapshots/$manifestHash.json',
+      body: planned.bytes,
+      contentType: 'application/json',
+    );
     final receipt = await FamilyReader.latest(client, planned.prefix);
     final sequence = (receipt?.commit.sequence ?? 0) + 1;
     final commit = V1Commit(
@@ -1165,11 +1285,12 @@ abstract final class BackupPublisher {
     final commitBytes = V1Json.encodeCommit(commit);
     final commitKey = planned.prefix + V1Json.commitRelativeKey(sequence);
     V1Validator.validateCommit(
-        commit: commit,
-        key: commitKey,
-        prefix: planned.prefix,
-        previous: receipt?.commit,
-        previousHash: receipt?.commitHash);
+      commit: commit,
+      key: commitKey,
+      prefix: planned.prefix,
+      previous: receipt?.commit,
+      previousHash: receipt?.commitHash,
+    );
     await client.putImmutable(key: commitKey, body: commitBytes, contentType: 'application/json');
     return commit;
   }

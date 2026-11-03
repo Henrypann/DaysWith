@@ -116,7 +116,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
               const Row(children: [
                 BrandMark(),
                 SizedBox(width: 8),
-                Text('DaysWith', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                Flexible(child: Text('DaysWith', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600))),
               ]),
               const SizedBox(height: 8),
               Text(ageLabel(DateTime.now()), style: const TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
