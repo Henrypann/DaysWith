@@ -43,7 +43,7 @@ class GatewayTests(unittest.TestCase):
         if raw is None:
             raw = json.dumps(body or {}).encode() if method in ('POST', 'PUT') else b''
         env = {'REQUEST_METHOD': method, 'PATH_INFO': path, 'QUERY_STRING': '',
-               'wsgi.url_scheme': scheme, 'wsgi.input': io.BytesIO(raw),
+               'wsgi.url_scheme': scheme, 'HTTP_HOST': 'family.example.test', 'wsgi.input': io.BytesIO(raw),
                'CONTENT_LENGTH': str(len(raw)), 'CONTENT_TYPE': content_type}
         if token is None and subject is not False:
             token = self.verifier.sign_for_test(subject or self.owner)
@@ -313,6 +313,22 @@ class GatewayTests(unittest.TestCase):
         response = self.call('GET', f'/v1/families/{self.fid}/records')
         self.assertEqual(response['status'], 413)
         self.assertEqual(response['body'], {'error': 'tooLarge'})
+
+    def test_profile_display_limits_match_dart_utf16_and_trim_behavior(self):
+        base = {'name': 'Valid', 'displayName': 'Parent', 'relationshipLabel': '家长', 'deviceID': uid()}
+        for field in ('name', 'displayName', 'relationshipLabel'):
+            for invalid in ('😀' * 41, '\ufeff \ufeff \ufeff'):
+                with self.subTest(field=field, value=repr(invalid)):
+                    self.assertEqual(self.call('POST', '/v1/families', dict(base, **{field: invalid}))['status'], 400)
+        accepted = self.call('POST', '/v1/families', dict(base, name='😀' * 40))
+        self.assertEqual(accepted['status'], 200)
+        self.assertEqual(accepted['body']['family']['name'], '😀' * 40)
+
+    def test_authenticated_opaque_subject_never_normalizes_into_another_identity(self):
+        for invalid in ('\ufeffsubject', 'subject\ufeff', '😀' * 129):
+            with self.subTest(subject=repr(invalid)):
+                with self.assertRaises(GatewayError):
+                    self.verifier.sign_for_test(invalid)
 
     def test_cross_family_cannot_read_or_manage(self):
         unrelated = self.create_family(subject='outsider')

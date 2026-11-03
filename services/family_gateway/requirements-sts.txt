@@ -1,0 +1,9 @@
+# Optional official Tencent STS adapter; no credential installation/discovery.
+# Modern transport pins deliberately conflict with COS SDK 1.9.44's old upper bounds.
+tencentcloud-sdk-python-sts==3.0.1459
+tencentcloud-sdk-python-common==3.0.1459
+requests==2.34.2
+certifi==2026.10.23
+charset-normalizer==3.5.2
+idna==3.20
+urllib3==2.8.0

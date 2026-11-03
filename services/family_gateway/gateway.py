@@ -21,6 +21,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+from urllib.parse import urlsplit
 
 
 class GatewayError(Exception):
@@ -34,11 +35,17 @@ def _fail(code, status=400):
 
 
 def _text(value, maximum=80):
-    if (not isinstance(value, str) or not value.strip() or
-            len(value.strip()) > maximum or
-            any(ord(c) < 32 or ord(c) == 127 for c in value)):
+    from .archives import _DART_WS
+    if not isinstance(value, str):
         _fail('invalidRequest')
-    return value.strip()
+    normalized = value.strip(_DART_WS)
+    try:
+        length = len(normalized.encode('utf-16-le')) // 2
+    except UnicodeError:
+        _fail('invalidRequest')
+    if not normalized or length > maximum or any(ord(c) < 32 or ord(c) == 127 for c in value):
+        _fail('invalidRequest')
+    return normalized
 
 
 def _subject(value):
@@ -90,6 +97,76 @@ class _LimitedInput:
         return data
 
 
+def _request_length(environ, maximum=None):
+    if environ.get('HTTP_TRANSFER_ENCODING') or environ.get('TRANSFER_ENCODING'):
+        _fail('invalidRequest')
+    raw = environ.get('CONTENT_LENGTH', '') or '0'
+    if not isinstance(raw, str) or len(raw) > 19 or not re.fullmatch(r'0|[1-9][0-9]*', raw):
+        _fail('invalidRequest')
+    length = int(raw)
+    if maximum is not None and length > maximum:
+        _fail('tooLarge', 413)
+    return length
+
+
+def _read_body(environ, length):
+    source = _LimitedInput(environ['wsgi.input'], length)
+    output = bytearray()
+    while source.remaining:
+        chunk = source.read(min(source.remaining, 64 * 1024))
+        if not chunk:
+            break
+        output.extend(chunk)
+    return bytes(output)
+
+
+def _metadata_json(raw):
+    def pairs(values):
+        result = {}
+        for key, value in values:
+            if key in result:
+                _fail('invalidRequest')
+            result[key] = value
+        return result
+    def no_number(_):
+        _fail('invalidRequest')
+    def validate_strings(value):
+        if isinstance(value, str):
+            value.encode('utf-8')
+        elif isinstance(value, list):
+            for item in value:
+                validate_strings(item)
+        elif isinstance(value, dict):
+            for key, item in value.items():
+                validate_strings(key)
+                validate_strings(item)
+    try:
+        value = json.loads(raw.decode('utf-8'), object_pairs_hook=pairs,
+                           parse_float=no_number, parse_constant=no_number)
+        validate_strings(value)
+        return value
+    except (ValueError, UnicodeError, RecursionError):
+        _fail('invalidRequest')
+
+
+_STORAGE_PUBLIC_ERRORS = {
+    'invalidObjectPath', 'unsafeStoragePath', 'notFound', 'sizeLimit',
+    'invalidDigest', 'objectDigestMismatch', 'invalidBody', 'sizeMismatch',
+    'digestMismatch', 'immutableConflict', 'corruptObject', 'denied',
+    'invalidCosScope', 'invalidDuration', 'stsNotConfigured',
+    'invalidStsResponse', 'stsUnavailable',
+}
+
+
+def _storage_error(error):
+    if error.code not in _STORAGE_PUBLIC_ERRORS:
+        _fail('unavailable', 503)
+    status = {'notFound': 404, 'immutableConflict': 409, 'sizeLimit': 413,
+              'denied': 403, 'stsNotConfigured': 503, 'invalidStsResponse': 503,
+              'stsUnavailable': 503}.get(error.code, 400)
+    _fail(error.code, status)
+
+
 class SyntheticHmacVerifier:
     """Short-lived signed credentials for synthetic tests, never a default login.
 
@@ -135,6 +212,8 @@ class SyntheticHmacVerifier:
 
 
 _SCHEMA = '''
+CREATE TABLE IF NOT EXISTS gateway_storage_binding(
+ singleton INTEGER PRIMARY KEY CHECK(singleton=1), storage_id TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS families(
  id TEXT PRIMARY KEY, name TEXT NOT NULL, primary_storage_id TEXT);
 CREATE TABLE IF NOT EXISTS members(
@@ -177,7 +256,7 @@ class Gateway:
     """WSGI application; request bodies are never an authentication source."""
     def __init__(self, database: str | Path, *, origin: str,
                  verify_bearer: Callable[[str], str] | None = None,
-                 clock=time.time, object_store=None, sts_issuer=None, cos_scope=None, requests_per_minute=120):
+                 clock=time.time, object_store=None, sts_issuer=None, cos_scope=None, requests_per_minute=360):
         from .storage import validate_https_origin, StorageError
         try:
             self.origin = validate_https_origin(origin)
@@ -204,7 +283,48 @@ class Gateway:
             if db.execute('PRAGMA user_version').fetchone()[0] not in (0, 1):
                 raise ValueError('unsupported gateway database version')
             db.executescript(_SCHEMA)
+            from .archives import SCHEMA as ARCHIVE_SCHEMA
+            db.executescript(ARCHIVE_SCHEMA)
+            if 'deleted_at' not in {row[1] for row in db.execute('PRAGMA table_info(archive_versions)')}:
+                db.execute('ALTER TABLE archive_versions ADD COLUMN deleted_at INTEGER')
+            if 'upper_moderation_id' not in {row[1] for row in db.execute('PRAGMA table_info(archive_cursors)')}:
+                db.execute('ALTER TABLE archive_cursors ADD COLUMN upper_moderation_id INTEGER NOT NULL DEFAULT 0')
             db.execute('PRAGMA user_version=1')
+            self._bind_storage(db)
+
+    def _bind_storage(self, db):
+        db.execute('BEGIN IMMEDIATE')
+        try:
+            row = db.execute('SELECT storage_id FROM gateway_storage_binding WHERE singleton=1').fetchone()
+            expected = row[0] if row else None
+            observed = self.object_store.storage_id if self.object_store is not None else None
+            if observed is not None and (not isinstance(observed, str) or not re.fullmatch(r'gateway:[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}', observed)):
+                raise ValueError('valid backend storage identity required')
+            if expected is not None and observed is not None and expected != observed:
+                raise ValueError('backend storage identity does not match the bound database')
+            if expected is None and observed is not None:
+                db.execute('INSERT INTO gateway_storage_binding VALUES(1,?)', (observed,))
+                expected = observed
+            if expected is not None:
+                if db.execute('SELECT 1 FROM families WHERE primary_storage_id IS NOT NULL AND primary_storage_id<>? LIMIT 1', (expected,)).fetchone():
+                    raise ValueError('family storage identity does not match the bound database')
+                db.execute('UPDATE families SET primary_storage_id=? WHERE primary_storage_id IS NULL', (expected,))
+            self._storage_id = expected
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+    def _ensure_backend(self):
+        if self.object_store is None or self._storage_id is None:
+            _fail('unavailable', 503)
+        try:
+            if self.object_store.storage_id != self._storage_id:
+                _fail('unavailable', 503)
+        except GatewayError:
+            raise
+        except Exception:
+            _fail('unavailable', 503)
 
     def _connect(self):
         db = sqlite3.connect(self.database, timeout=10, isolation_level=None)
@@ -314,7 +434,7 @@ class Gateway:
                 if method == 'POST':
                     self._fields(body, {'name', 'displayName', 'relationshipLabel', 'deviceID'})
                     family, member, device = _id(), _id(), _id(body['deviceID'])
-                    db.execute('INSERT INTO families VALUES(?,?,NULL)', (family, _text(body['name'])))
+                    db.execute('INSERT INTO families VALUES(?,?,?)', (family, _text(body['name']), self._storage_id))
                     db.execute('INSERT INTO members VALUES(?,?,?,?,?,?,?)',
                                (member, family, subject, _text(body['displayName']),
                                 _text(body['relationshipLabel']), 'admin', 'active'))
@@ -417,6 +537,8 @@ class Gateway:
                     if parts[2] == 'approve':
                         if db.execute("SELECT id FROM members WHERE family_id=? AND subject_id=? AND status='active'", (row['family_id'], row['subject_id'])).fetchone():
                             _fail('alreadyMember', 409)
+                        if db.execute('SELECT 1 FROM devices d JOIN members m ON m.id=d.member_id WHERE m.family_id=? AND d.device_id=? AND m.subject_id<>?', (row['family_id'], row['device_id'], row['subject_id'])).fetchone():
+                            _fail('conflict', 409)
                         member = _id()
                         db.execute('INSERT INTO members VALUES(?,?,?,?,?,?,?)',
                                    (member, row['family_id'], row['subject_id'], row['display_name'], row['relationship_label'], row['requested_role'], 'active'))
@@ -490,8 +612,18 @@ class Gateway:
         if self.verify_bearer is None:
             _fail('unavailable', 503)
         auth = environ.get('HTTP_AUTHORIZATION', '')
-        if not auth.startswith('Bearer ') or len(auth) > 8192 or len(auth.split()) != 2:
+        if (not isinstance(auth, str) or len(auth) > 8192 or auth[:7].lower() != 'bearer ' or
+                not re.fullmatch(r'[A-Za-z0-9._~+/-]+=*', auth[7:])):
             _fail('unauthenticated', 401)
+        host = environ.get('HTTP_HOST', '')
+        try:
+            if not isinstance(host, str) or not re.fullmatch(r'[A-Za-z0-9.\[\]:-]+', host):
+                _fail('invalidRequest')
+            observed, expected = urlsplit('https://' + host), urlsplit(self.origin)
+            if observed.hostname != expected.hostname or (observed.port or 443) != (expected.port or 443):
+                _fail('invalidRequest')
+        except ValueError:
+            _fail('invalidRequest')
         try:
             subject = _subject(self.verify_bearer(auth[7:]))
         except Exception:
@@ -506,8 +638,7 @@ class Gateway:
         return subject
 
     def _media(self, environ, subject, path):
-        if self.object_store is None:
-            _fail('unavailable', 503)
+        self._ensure_backend()
         match = re.fullmatch(r'/v1/families/([A-Fa-f0-9-]+)/members/([A-Fa-f0-9-]+)/objects/([a-f0-9]{64})', path)
         if not match:
             _fail('notFound', 404)
@@ -515,6 +646,7 @@ class Gateway:
         obj = match.group(3)
         method = environ['REQUEST_METHOD']
         def authorize(action, family_id, owner_id, object_id):
+            self._ensure_backend()
             with self._transaction() as db:
                 member = self._member(db, subject, family_id)
                 target = db.execute("SELECT id FROM members WHERE id=? AND family_id=?", (owner_id, family_id)).fetchone()
@@ -527,11 +659,10 @@ class Gateway:
         from .storage import StorageError
         try:
             if method == 'PUT':
-                size = environ.get('CONTENT_LENGTH', '')
-                if not re.fullmatch(r'0|[1-9][0-9]*', size):
-                    _fail('invalidRequest')
+                size = _request_length(environ)
                 info = self.object_store.put(family, owner, obj, _LimitedInput(environ['wsgi.input'], int(size)),
                                              size=int(size), sha256=environ.get('HTTP_X_CONTENT_SHA256', ''), authorize=authorize)
+                self._ensure_backend()
                 with self._transaction() as db:
                     self._audit(db, subject, family, 'object.put', obj)
                 return 200, {'Content-Type': 'application/json'}, [json.dumps(info.to_dict()).encode()]
@@ -549,8 +680,13 @@ class Gateway:
                 with self._transaction() as db:
                     self._member(db, subject, family, admin=True)
                     self._audit(db, subject, family, 'object.delete.request', obj)
-                self.object_store.delete(family, owner, obj, authorize=authorize)
                 with self._transaction() as db:
+                    self._member(db, subject, family, admin=True)
+                    if db.execute('SELECT 1 FROM archive_object_references WHERE family_id=? AND member_id=? AND sha256=? LIMIT 1', (family, owner, obj)).fetchone():
+                        _fail('referencedObject', 409)
+                    def locked_authorize(action, f, m, digest):
+                        self._member(db, subject, f, admin=True)
+                    self.object_store.delete(family, owner, obj, authorize=locked_authorize)
                     self._audit(db, subject, family, 'object.delete', obj)
                 return 200, {'Content-Type': 'application/json'}, [b'{"ok":true}']
         except OSError:
@@ -562,8 +698,7 @@ class Gateway:
             if method == 'DELETE':
                 with self._transaction() as db:
                     self._audit(db, subject, family, 'object.delete.failed', obj)
-            status = {'notFound': 404, 'conflict': 409, 'immutableConflict': 409, 'sizeLimit': 413}.get(error.code, 400)
-            _fail(error.code, status)
+            _storage_error(error)
         _fail('notFound', 404)
 
     def _credentials(self, subject, family, body):
@@ -584,53 +719,123 @@ class Gateway:
                 self.cos_scope, family, member_id, role, authorize=authorize,
                 duration_seconds=body.get('durationSeconds', 600))
         except StorageError as error:
-            _fail(error.code, 503 if error.code in ('stsNotConfigured', 'invalidStsResponse', 'stsUnavailable') else 400)
+            _storage_error(error)
         with self._transaction() as db:
             self._member(db, subject, family)
             self._audit(db, subject, family, 'sts.issue', member_id)
         return credentials.to_dict()
 
+    def _archive_route(self, environ, subject, path):
+        from .archives import ArchiveRepository, ArchiveError, MAX_BYTES, MAX_INTEGER
+        repo = ArchiveRepository(self)
+        method = environ.get('REQUEST_METHOD', '')
+        catalog = re.fullmatch(r'/v1/families/([A-Fa-f0-9-]+)/archive', path)
+        snapshot = re.fullmatch(r'/v1/families/([A-Fa-f0-9-]+)/members/([A-Fa-f0-9-]+)/devices/([A-Fa-f0-9-]+)/snapshots/([1-9][0-9]{0,15})/([a-f0-9]{64})', path)
+        register = re.fullmatch(r'/v1/families/([A-Fa-f0-9-]+)/devices/([A-Fa-f0-9-]+)', path)
+        if catalog and method == 'GET':
+            self._ensure_backend()
+            fields = {}
+            query = environ.get('QUERY_STRING', '')
+            if query:
+                if not re.fullmatch(r'[A-Za-z0-9_=&-]+', query):
+                    _fail('invalidRequest')
+                for pair in query.split('&'):
+                    if pair.count('=') != 1:
+                        _fail('invalidRequest')
+                    key, value = pair.split('=')
+                    if key not in ('cursor', 'limit') or key in fields or not value:
+                        _fail('invalidRequest')
+                    fields[key] = value
+            raw_limit = fields.get('limit', '100')
+            if not re.fullmatch(r'[1-9][0-9]{0,2}', raw_limit):
+                _fail('invalidRequest')
+            result = repo.catalog(subject, _id(catalog.group(1)), fields.get('cursor'), int(raw_limit))
+            return 200, {'Content-Type': 'application/json; charset=utf-8'}, [json.dumps(result).encode()]
+        if environ.get('QUERY_STRING'):
+            _fail('invalidRequest')
+        if register and method == 'POST':
+            length = _request_length(environ, 65536)
+            if environ.get('CONTENT_TYPE', '').split(';')[0].strip() != 'application/json':
+                _fail('invalidRequest')
+            raw = _read_body(environ, length)
+            if len(raw) != length:
+                _fail('invalidRequest')
+            self._fields(_metadata_json(raw), set())
+            result = repo.register_device(subject, _id(register.group(1)), _id(register.group(2)))
+            return 200, {'Content-Type': 'application/json'}, [json.dumps(result).encode()]
+        if snapshot:
+            self._ensure_backend()
+            family, member, device = map(_id, snapshot.groups()[:3])
+            sequence, digest = int(snapshot.group(4)), snapshot.group(5)
+            if sequence > MAX_INTEGER:
+                _fail('invalidRequest')
+            if method == 'PUT':
+                repo.preflight(subject, family, member, device)
+                length = _request_length(environ, MAX_BYTES)
+                if environ.get('CONTENT_TYPE', '').split(';')[0].strip() != 'application/json':
+                    _fail('invalidRequest')
+                header_digest = environ.get('HTTP_X_CONTENT_SHA256')
+                if header_digest is not None and header_digest != digest:
+                    _fail('invalidArchive')
+                raw = _read_body(environ, length)
+                if len(raw) != length:
+                    _fail('invalidArchive')
+                intent = environ.get('HTTP_X_DAYSWITH_DELETION_INTENT')
+                if intent not in (None, 'explicit-admin-action'):
+                    _fail('invalidRequest')
+                result = repo.publish(subject, family, member, device, sequence, digest, raw,
+                                      deletion_intent=intent is not None)
+                return 200, {'Content-Type': 'application/json'}, [json.dumps(result).encode()]
+            if method == 'GET':
+                raw = repo.read(subject, family, member, device, sequence, digest)
+                return 200, {'Content-Type': 'application/json; charset=utf-8',
+                             'Content-Length': str(len(raw)), 'X-Content-SHA256': digest}, [raw]
+        _fail('notFound', 404)
+
     def __call__(self, environ, start_response):
+        from .archives import ArchiveError
         headers = {'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'}
         try:
             subject = self._authenticate(environ)
-            if environ.get('QUERY_STRING'):
-                _fail('invalidRequest')
+            _request_length(environ)
             path = environ.get('PATH_INFO', '')
             method = environ.get('REQUEST_METHOD', '')
-            if '/objects/' in path:
+            archive_path = re.fullmatch(r'/v1/families/[A-Fa-f0-9-]+/(?:archive|devices/[A-Fa-f0-9-]+|members/[A-Fa-f0-9-]+/devices/[A-Fa-f0-9-]+/snapshots/[^/]+/[^/]+)', path)
+            if archive_path:
+                status, extra, response = self._archive_route(environ, subject, path)
+                headers.update(extra)
+            elif environ.get('QUERY_STRING'):
+                _fail('invalidRequest')
+            elif '/objects/' in path:
                 status, extra, response = self._media(environ, subject, path)
                 headers.update(extra)
             else:
-                raw_length = environ.get('CONTENT_LENGTH', '') or '0'
-                if not re.fullmatch(r'0|[1-9][0-9]*', raw_length):
-                    _fail('invalidRequest')
-                length = int(raw_length)
-                if length > 65536:
-                    _fail('tooLarge', 413)
+                length = _request_length(environ, 65536)
                 body = None
                 if method in ('POST', 'PUT'):
                     if environ.get('CONTENT_TYPE', '').split(';')[0].strip() != 'application/json':
                         _fail('invalidRequest')
-                    raw = environ['wsgi.input'].read(length)
+                    raw = _read_body(environ, length)
                     if len(raw) != length:
                         _fail('invalidRequest')
-                    try:
-                        body = json.loads(raw, parse_constant=lambda _: _fail('invalidRequest'))
-                    except (ValueError, UnicodeError, RecursionError):
-                        _fail('invalidRequest')
+                    body = _metadata_json(raw)
                 credentials_route = re.fullmatch(r'/v1/families/([A-Fa-f0-9-]+)/credentials', path)
-                if method == 'POST' and credentials_route:
+                moderation_route = re.fullmatch(r'/v1/families/([A-Fa-f0-9-]+)/members/([A-Fa-f0-9-]+)/records/([A-Fa-f0-9-]+)/moderation', path)
+                if method == 'POST' and moderation_route:
+                    from .archives import ArchiveRepository
+                    self._fields(body, {'expectedRevision', 'hidden'})
+                    result = ArchiveRepository(self).moderate(subject, *map(_id, moderation_route.groups()), body['expectedRevision'], body['hidden'])
+                elif method == 'POST' and credentials_route:
                     result = self._credentials(subject, _id(credentials_route.group(1)), body)
                 else:
                     result = self.dispatch(subject, method, path, body)
                 status, response = 200, [json.dumps(result, ensure_ascii=False).encode()]
                 headers['Content-Type'] = 'application/json; charset=utf-8'
-        except GatewayError as error:
+        except (GatewayError, ArchiveError) as error:
             status, response = error.status, [json.dumps({'error': error.code}).encode()]
             headers['Content-Type'] = 'application/json; charset=utf-8'
-        except (ValueError, TypeError, sqlite3.Error):
-            # Do not expose database paths, tokens, input, or provider exceptions.
+        except Exception:
+            # No provider exception, key, URL, input, or local path crosses WSGI.
             status, response = 503, [b'{"error":"unavailable"}']
             headers['Content-Type'] = 'application/json; charset=utf-8'
         phrases = {200: 'OK', 400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden',

@@ -9,7 +9,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>DaysWith</string>
 	<key>NSCameraUsageDescription</key>
-	<string>拍照记录孩子的小日常。</string>
+	<string>用来拍摄记录或扫描家庭邀请码，仅在你主动打开相机时使用。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>选择照片或视频加入记录，并读取拍摄日期。</string>
 	<key>NSMicrophoneUsageDescription</key>

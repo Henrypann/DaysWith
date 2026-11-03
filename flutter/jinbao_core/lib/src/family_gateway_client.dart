@@ -8,7 +8,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'digest.dart';
 import 'family.dart';
+import 'family_archive_client.dart';
 import 'family_invitations.dart' show FamilyJoinStatus;
 
 enum FamilyGatewayFailure {
@@ -97,6 +99,7 @@ class IoFamilyGatewayTransport implements FamilyGatewayTransport {
       outgoing.followRedirects = false;
       outgoing.maxRedirects = 0;
       request.headers.forEach(outgoing.headers.set);
+      outgoing.contentLength = request.body.length;
       outgoing.add(request.body);
       final incoming = await outgoing.close();
       if (incoming.contentLength > maxResponseBytes) {
@@ -306,6 +309,30 @@ class FamilyGatewayClient {
     }
   }
 
+  /// Shares the authenticated session; archive data never supplies actor authority.
+  FamilyArchiveClient createArchiveClient({FamilyArchiveTransport? transport}) =>
+      FamilyArchiveClient(origin: origin, accessToken: _accessToken, transport: transport);
+
+  /// A local cache partition only, never authentication or authorization proof.
+  /// No token/claims are persisted here. A refresh changes this conservative
+  /// binding until the host fetches and rebinds verified metadata online.
+  Future<String?> localCacheSessionBinding() async {
+    try {
+      final token = await _accessToken().timeout(timeout);
+      if (token == null || token.isEmpty || token.length > 8192 ||
+          !RegExp(r'^[A-Za-z0-9\-._~+/]+=*$').hasMatch(token)) {
+        return null;
+      }
+      return Digest.sha256Hex(utf8.encode(jsonEncode([
+        'dayswith-local-cache-session-v1', origin.toString(), token,
+      ])));
+    } catch (_) {
+      // Session brokers can throw errors containing credential details. Missing,
+      // failed or timed-out session lookup must hide cached metadata quietly.
+      return null;
+    }
+  }
+
   Future<List<Family>> listFamilies() => _perform('GET', '/v1/families', (json) {
     final families = _list(json['families']).map((item) => _family(_object(item))).toList();
     if (families.map((family) => family.id).toSet().length != families.length) _invalid();
@@ -493,7 +520,7 @@ class FamilyGatewayClient {
         method: method,
         uri: origin.replace(path: path),
         headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json',
-          'Content-Type': 'application/json'},
+          'Content-Type': 'application/json', 'Content-Length': '${bytes.length}'},
         body: bytes,
       )).timeout(timeout);
       if (response.body.length > 1024 * 1024) _invalid();

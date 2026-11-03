@@ -365,6 +365,7 @@ List<FamilyArchiveRecord> mergeFamilyArchiveRecords(
   List<FamilyArchiveManifest> manifests, {required String familyID},
 ) {
   final expected = familyStableID(familyID);
+  validateFamilyArchiveMediaHistory(manifests, familyID: expected);
   final winners = <String, (FamilyArchiveRecord, String)>{};
   final revisions = <String, String>{};
   for (final manifest in manifests) {
@@ -385,6 +386,43 @@ List<FamilyArchiveRecord> mergeFamilyArchiveRecords(
   }
   final keys = winners.keys.toList()..sort();
   return List.unmodifiable(keys.map((key) => winners[key]!.$1));
+}
+
+/// Asset/resource IDs identify immutable media metadata for the lifetime of a
+/// member namespace, including older revisions hidden by a newer record. This
+/// mirrors the gateway's durable media-ID registry; a new record revision never
+/// grants permission to make an old media ID refer to different bytes.
+/// Identical UUIDs belonging to different members remain independent.
+void validateFamilyArchiveMediaHistory(
+  List<FamilyArchiveManifest> manifests, {required String familyID},
+) {
+  final expected = familyStableID(familyID);
+  final fingerprints = <String, String>{};
+  final objectSizes = <String, int>{};
+  void immutable(String key, Map<String, Object?> value) {
+    final digest = Digest.sha256Hex(JsonWire.encode(value));
+    final previous = fingerprints[key];
+    if (previous != null && previous != digest) _invalid('mediaHistory');
+    fingerprints[key] = digest;
+  }
+  for (final manifest in manifests) {
+    if (manifest.scope.familyID != expected) _invalid('scope');
+    final scope = manifest.scope;
+    for (final record in manifest.records) {
+      for (final asset in record.assets) {
+        immutable('${scope.memberID}:asset:${asset.id}', asset.toJson(scope));
+        for (final resource in asset.resources) {
+          immutable('${scope.memberID}:resource:${resource.id}', resource.toJson(scope));
+          final objectKey = scope.objectKey(resource.sha256);
+          final previousSize = objectSizes[objectKey];
+          if (previousSize != null && previousSize != resource.byteCount) {
+            _invalid('resource.byteCount');
+          }
+          objectSizes[objectKey] = resource.byteCount;
+        }
+      }
+    }
+  }
 }
 
 class FamilyLegacyObjectCopy {

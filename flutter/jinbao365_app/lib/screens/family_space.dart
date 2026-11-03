@@ -10,6 +10,7 @@ class FamilySpaceScreen extends StatefulWidget {
   final VoidCallback? onViewTimeline;
   final Future<Uri?> Function(BuildContext context)? scanInvitation;
   final Widget Function(BuildContext context, Uri invitation)? invitationCodeBuilder;
+  final ValueChanged<Family>? onOpenRecords;
 
   const FamilySpaceScreen({
     super.key,
@@ -18,6 +19,7 @@ class FamilySpaceScreen extends StatefulWidget {
     this.onViewTimeline,
     this.scanInvitation,
     this.invitationCodeBuilder,
+    this.onOpenRecords,
   });
 
   @override
@@ -387,6 +389,14 @@ class _FamilySpaceScreenState extends State<FamilySpaceScreen> {
       Text(snapshot.family.name, style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       Text('我的权限：${_roleName(snapshot.currentMember.role)}', style: const TextStyle(fontSize: 16)),
+      if (widget.onOpenRecords != null) ...[
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: _busy ? null : () => widget.onOpenRecords!(snapshot.family),
+          icon: const Icon(Icons.photo_library_outlined),
+          label: const Text('查看家庭记录'),
+        ),
+      ],
       if (_admin) ...[
         const SizedBox(height: 12),
         FilledButton.icon(onPressed: _busy ? null : _issueInvitation, icon: const Icon(Icons.person_add_alt), label: const Text('邀请家人')),

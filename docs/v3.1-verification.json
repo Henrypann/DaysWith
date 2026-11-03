@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-11-03T04:55:13.340634+00:00",
+  "python": "3.12.14",
+  "command": "PYTHONPATH=/workspace/.gateway-python-deps PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s services/family_gateway/tests",
+  "tests_run": 154,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "successful": true,
+  "dependencies": {
+    "PyJWT": "2.15.1",
+    "cryptography": "50.0.0",
+    "tencentcloud-sdk-python-common": "3.0.1459",
+    "tencentcloud-sdk-python-sts": "3.0.1459",
+    "requests": "2.34.2",
+    "certifi": "2026.10.23"
+  },
+  "python_source_sha256": {
+    "services/family_gateway/__init__.py": "530ca437ed71afce0465c54018924ecbd34c537a22c3f1852ae1c5ea5a6ba7bb",
+    "services/family_gateway/archives.py": "33c62fe9103754f4348092997c9b27e0403e82eb3b6ffd998eab37f6d2db5ce6",
+    "services/family_gateway/cos_sts.py": "6b0e2c36f5403d94060467c6ee6f3bb97846417b63b0c70bf2371890b6374ed3",
+    "services/family_gateway/gateway.py": "66a04f2fb730a5c93dacf99476a67f859f7280d8fe5d6101b31594738bf3e8cc",
+    "services/family_gateway/identity.py": "746aa1e47c0f3469bf4057ca334d7195958c47119def6f5d1eb80e4c5afeb331",
+    "services/family_gateway/storage.py": "2eecdf5a81daf06e83045ab9ab8b83e2bdadeb88630823bffad0ae3d15802abd",
+    "services/family_gateway/tests/test_archives.py": "43942624202ca9c2408ecb1e6eb82f4de48e74f711e3eaf71b88db88800b1e20",
+    "services/family_gateway/tests/test_cos_sts.py": "ece563c557efba6c1b8d20e6582aaf1a8df66b31d47af484ceb0f2e2042fc1dc",
+    "services/family_gateway/tests/test_gateway.py": "a1a21feeedea113a6e7fb0fc977b8af616708ec02484b3625ed47b0c885a4072",
+    "services/family_gateway/tests/test_identity.py": "33be6fb6d0bf7fa24210d63c930a475068128eb9619f590bdccc2c0b8afe0933",
+    "services/family_gateway/tests/test_identity_security.py": "e6dc2225ebfcc4ded659e25ac78c041831fe5511014009de75a3d30954f61db9",
+    "services/family_gateway/tests/test_moderation.py": "f8b7b6f1000be53df9436468a2de2548a061e45dbb4d8dd617c061a93d5bbc2b",
+    "services/family_gateway/tests/test_request_security.py": "1f37fe027728854b199a2fc6685dfce18c2a028c556b22c7fdb47b6c97fbd83e",
+    "services/family_gateway/tests/test_storage.py": "a8ec9453f0fb75a5c38e58c744010dcd9e84e04f11987d86c97562edf7a4ce73",
+    "services/family_gateway/tests/test_storage_binding.py": "7e69c83d7c3693ac9bf61dcf912ccc90b59ae61354fc07a8a39795f27d75950d"
+  },
+  "dart_flutter_analysis_tests": "not_run_sdk_network_blocked",
+  "platform_builds_and_devices": "not_run",
+  "real_identity_cos_nas_sts": "not_run",
+  "release_ready": false,
+  "reviewed_dart_test_declarations_not_executed": {
+    "flutter/jinbao_core/test/family_archive_client_test.dart": 22,
+    "flutter/jinbao_core/test/family_gateway_client_test.dart": 15,
+    "flutter/jinbao_core/test/family_archive_test.dart": 10,
+    "flutter/jinbao365_app/test/family_data_controller_test.dart": 28,
+    "flutter/jinbao365_app/test/family_records_test.dart": 15,
+    "flutter/jinbao365_app/test/family_media_import_test.dart": 9
+  },
+  "static_checks": {
+    "git_diff_whitespace": "passed",
+    "python_ast": "passed",
+    "android_manifest_xml": "passed",
+    "ios_info_plist": "passed",
+    "dart_analyzer_formatter": "not_run",
+    "native_permissions_and_video_playback": "not_run"
+  }
+}

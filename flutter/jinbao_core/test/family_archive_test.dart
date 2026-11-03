@@ -151,6 +151,51 @@ void main() {
     expect(() => mergeFamilyArchiveRecords([first], familyID: uuid(8)), throwsA(isA<ContractError>()));
   });
 
+  test('media IDs remain immutable across newer revisions and device histories', () {
+    final original = _asset(0);
+    final changedResources = [for (final resource in original.resources)
+      FamilyArchiveResource(id: resource.id, role: resource.role,
+        contentType: resource.contentType, originalFilename: resource.originalFilename,
+        byteCount: resource.byteCount,
+        sha256: Digest.sha256Hex(utf8.encode('changed-${resource.id}'))),
+    ];
+    final first = FamilyArchiveManifest(scope: _scope(), sequence: 1,
+        records: [_record(assets: [original])]);
+    final mutatedAsset = FamilyArchiveAsset(id: original.id, kind: original.kind,
+        capturedAt: original.capturedAt, resources: changedResources);
+    final next = FamilyArchiveManifest(scope: _scope(), sequence: 2,
+        parentHash: first.sha256, records: [_record(revision: 2, assets: [mutatedAsset])]);
+    expect(() => next.validateSuccessor(first), throwsA(isA<ContractError>()));
+    // New asset/record IDs cannot conceal reuse of an existing resource ID.
+    final otherAsset = FamilyArchiveAsset(id: uuid(999), kind: original.kind,
+        capturedAt: original.capturedAt, resources: changedResources);
+    final otherDevice = FamilyArchiveManifest(scope: _scope(device: 4), sequence: 1,
+        records: [_record(id: 11, device: 4, assets: [otherAsset])]);
+    expect(() => mergeFamilyArchiveRecords([otherDevice, first], familyID: uuid(1)),
+        throwsA(isA<ContractError>()));
+    expect(() => validateFamilyArchiveMediaHistory([first, otherDevice], familyID: uuid(1)),
+        throwsA(isA<ContractError>()));
+  });
+
+  test('the same media UUID belongs to an independent namespace for another member', () {
+    final original = _asset(0);
+    final otherAsset = FamilyArchiveAsset(id: original.id, kind: original.kind,
+      capturedAt: original.capturedAt + 1,
+      resources: [for (final resource in original.resources)
+        FamilyArchiveResource(id: resource.id, role: resource.role,
+          contentType: resource.contentType, originalFilename: resource.originalFilename,
+          byteCount: resource.byteCount + 1,
+          sha256: Digest.sha256Hex(utf8.encode('other-member-${resource.id}'))),
+      ],
+    );
+    final first = FamilyArchiveManifest(scope: _scope(), sequence: 1,
+        records: [_record(assets: [original])]);
+    final other = FamilyArchiveManifest(scope: _scope(member: 5), sequence: 1,
+        records: [_record(owner: 5, assets: [otherAsset])]);
+    validateFamilyArchiveMediaHistory([first, other], familyID: uuid(1));
+    expect(mergeFamilyArchiveRecords([first, other], familyID: uuid(1)), hasLength(2));
+  });
+
   test('legacy copy plan binds original bytes and keeps source untouched for rollback', () {
     final prefix = 'life/v1/dad/${uuid(3).toLowerCase()}/';
     final assets = [_asset(0)];

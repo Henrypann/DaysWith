@@ -11,6 +11,7 @@ import 'shell.dart';
 import 'storage_center.dart';
 import 'family_space.dart';
 import 'family_qr.dart';
+import 'family_records.dart';
 
 /// Port of MyView.swift and SettingsView.swift.
 class MyScreen extends StatelessWidget {
@@ -104,6 +105,18 @@ class FamilySpacePage extends StatelessWidget {
     return FamilySpaceScreen(
       client: model.familyGatewayClient,
       deviceID: model.session.deviceID,
+      onOpenRecords: model.familyGatewayClient == null ? null : (family) {
+        Navigator.of(context).push<void>(MaterialPageRoute(
+          builder: (_) => FamilyRecordsScreen(
+            client: model.familyGatewayClient!,
+            selectedFamily: family,
+            currentLocalSession: () => model.session,
+            localDirectory: model.directory,
+            wifiOnlyUploads: model.wifiOnlyBackup,
+            allowCellularOriginals: model.allowCellularOriginals,
+          ),
+        ));
+      },
       scanInvitation: (context) => Navigator.of(context).push<Uri>(
         MaterialPageRoute(builder: (_) => const FamilyQrScannerScreen()),
       ),

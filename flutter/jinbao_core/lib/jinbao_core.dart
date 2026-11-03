@@ -30,4 +30,5 @@ export 'src/family.dart';
 export 'src/family_invitations.dart';
 export 'src/family_gateway_client.dart';
 export 'src/family_archive.dart';
+export 'src/family_archive_client.dart';
 export 'src/archive_restore.dart';

@@ -91,6 +91,35 @@ void main() {
     expect(transport.requests, isEmpty);
   });
 
+  test('local metadata cache binding is stable, opaque, origin-scoped and refresh-sensitive', () async {
+    final first = await client.localCacheSessionBinding();
+    expect(first, matches(RegExp(r'^[a-f0-9]{64}$')));
+    expect(await client.localCacheSessionBinding(), first);
+    expect(first, isNot(contains(sessionToken)));
+    final other = FamilyGatewayClient(origin: Uri.parse('https://other.example.invalid'),
+      accessToken: () async => token, transport: transport);
+    expect(await other.localCacheSessionBinding(), isNot(first));
+    token = 'synthetic.refreshed-session';
+    expect(await client.localCacheSessionBinding(), isNot(first));
+    expect(transport.requests, isEmpty, reason: 'A local hash grants no remote access.');
+  });
+
+  test('missing invalid throwing and timed-out session brokers yield no cache binding', () async {
+    for (final value in <String?>[null, '', 'unsafe\r\nsecret', 'token with spaces']) {
+      token = value;
+      expect(await client.localCacheSessionBinding(), isNull);
+    }
+    final throwing = FamilyGatewayClient(origin: gateway, transport: transport,
+      accessToken: () async => throw Exception('Do not expose $sessionToken'));
+    expect(await throwing.localCacheSessionBinding(), isNull);
+    final delayed = Completer<String?>();
+    final impatient = FamilyGatewayClient(origin: gateway, accessToken: () => delayed.future,
+      transport: transport, timeout: const Duration(milliseconds: 1));
+    expect(await impatient.localCacheSessionBinding(), isNull);
+    delayed.complete(sessionToken);
+    expect(transport.requests, isEmpty);
+  });
+
   test('default transport rejects plaintext before opening a socket', () async {
     await expectLater(const IoFamilyGatewayTransport().send(FamilyGatewayRequest(
       method: 'GET', uri: Uri.parse('http://gateway.example.invalid/v1/families'),
@@ -120,6 +149,7 @@ void main() {
     expect(preview.familyName, '合成家庭');
     expect(preview.requestedRole, FamilyRole.viewer);
     expect(transport.requests.single.headers['Authorization'], 'Bearer $sessionToken');
+    expect(transport.requests.single.headers['Content-Length'], '0');
     expect(transport.requests.single.uri.path, '/v1/invitations/$opaqueToken');
     await expectLater(client.exchangeInvitation(preview, confirmed: false,
       displayName: '外婆', relationshipLabel: '外婆', deviceID: deviceID),
@@ -131,6 +161,7 @@ void main() {
     expect(pending.status, FamilyJoinStatus.pending);
     expect(pending.approvedMemberID, isNull);
     final body = jsonDecode(utf8.decode(transport.requests.last.body)) as Map<String, dynamic>;
+    expect(transport.requests.last.headers['Content-Length'], '${transport.requests.last.body.length}');
     expect(body['familyID'], familyID);
     expect(body['confirmed'], isTrue);
     expect(body['deviceID'], deviceID);
@@ -218,6 +249,11 @@ void main() {
     expect(snapshot.currentMember.role, FamilyRole.admin);
     expect(snapshot.currentMember.deviceIDs, [deviceID]);
     expect(snapshot.primaryStorageID, isNull);
+    const otherFamily = '60000000-0000-4000-8000-000000000006';
+    final misrouted = {...memberJson(), 'familyID': otherFamily};
+    transport.respond({'family': {'id': otherFamily, 'name': '另一家庭'},
+      'members': [misrouted], 'currentMember': misrouted});
+    await expectLater(client.getFamily(familyID), failure(FamilyGatewayFailure.invalidResponse));
     transport.respond({'family': {'id': familyID, 'name': '合成家庭'},
       'members': [memberJson(role: 'viewer')], 'currentMember': memberJson()});
     await expectLater(client.getFamily(familyID), failure(FamilyGatewayFailure.invalidResponse));

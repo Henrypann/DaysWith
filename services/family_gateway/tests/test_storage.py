@@ -1,8 +1,10 @@
 import hashlib
 import io
+import json
 import os
 from pathlib import Path
 import tempfile
+import threading
 from concurrent.futures import ThreadPoolExecutor
 import unittest
 from unittest.mock import patch
@@ -224,6 +226,178 @@ class StorageTests(unittest.TestCase):
             self.store.delete(*self.ids, authorize=denied)
         self.store.delete(*self.ids, authorize=allowed)
         self.error("notFound", lambda: self.store.stat(*self.ids, authorize=allowed))
+
+
+class StorageIdentityTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name) / "dedicated-objects"
+        self.store = ObjectStore(self.root)
+        self.marker = self.root / ObjectStore.identity_marker
+        self.body = b"synthetic identity-bound original"
+        self.ids = (identifier(), identifier(), hashlib.sha256(self.body).hexdigest())
+
+    def error(self, code, operation):
+        with self.assertRaises(StorageError) as caught:
+            operation()
+        self.assertEqual(code, caught.exception.code)
+
+    def put(self):
+        return self.store.put(*self.ids, io.BytesIO(self.body), size=len(self.body),
+                              sha256=self.ids[2], authorize=allowed)
+
+    def test_restart_keeps_same_random_private_nonsecret_storage_identity(self):
+        storage_id = self.store.storage_id
+        self.assertEqual(storage_id, ObjectStore(self.root).storage_id)
+        self.assertRegex(storage_id, r"^gateway:[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}$")
+        marker = json.loads(self.marker.read_bytes())
+        self.assertEqual({"id", "version"}, set(marker))
+        self.assertEqual(1, marker["version"])
+        self.assertEqual(4, uuid.UUID(marker["id"]).version)
+        self.assertEqual("gateway:" + marker["id"], storage_id)
+        self.assertEqual(0o600, self.marker.stat().st_mode & 0o777)
+        self.assertLess(len(self.marker.read_bytes()), ObjectStore.marker_limit)
+        self.assertFalse(list(self.root.glob(".identity-*")))
+
+    def test_new_root_has_different_identity(self):
+        other = ObjectStore(Path(self.temp.name) / "another-dedicated-root")
+        self.assertNotEqual(self.store.storage_id, other.storage_id)
+
+    def test_existing_unmarked_even_empty_root_is_not_auto_adopted(self):
+        existing = Path(self.temp.name) / "preexisting"
+        existing.mkdir()
+        self.error("invalidStorageIdentity", lambda: ObjectStore(existing))
+        self.assertEqual([], list(existing.iterdir()))
+
+    def test_concurrent_initializers_cannot_publish_two_identities(self):
+        root = Path(self.temp.name) / "concurrent-root"
+        barrier = threading.Barrier(2)
+        def initialize(_):
+            barrier.wait()
+            try:
+                return ObjectStore(root).storage_id
+            except StorageError as error:
+                # An initializer observing an unfinished marker must fail
+                # closed rather than create a second identity for that root.
+                self.assertEqual("invalidStorageIdentity", error.code)
+                return None
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            values = list(pool.map(initialize, range(2)))
+        successful = {value for value in values if value is not None}
+        self.assertEqual(1, len(successful))
+        self.assertEqual(successful.pop(), ObjectStore(root).storage_id)
+
+    def test_deleted_marker_blocks_every_existing_instance_operation(self):
+        self.put()
+        self.marker.unlink()
+        for operation in (
+            lambda: self.store.storage_id,
+            self.put,
+            lambda: self.store.stat(*self.ids, authorize=allowed),
+            lambda: b"".join(self.store.read(*self.ids, authorize=allowed)),
+            lambda: self.store.delete(*self.ids, authorize=allowed),
+        ):
+            self.error("storageIdentityMismatch", operation)
+        self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+        self.assertEqual(self.body, (self.root / self.store.key(*self.ids)).read_bytes())
+        self.assertFalse(list(self.root.rglob(".upload-*")))
+
+    def test_corrupt_oversize_and_unknown_markers_fail_closed(self):
+        original = json.loads(self.marker.read_bytes())
+        invalid = [b"not json", b"x" * (ObjectStore.marker_limit + 1),
+                   canonical_marker(dict(original, version=2)),
+                   canonical_marker(dict(original, version=True)),
+                   canonical_marker(dict(original, unexpected="field")),
+                   canonical_marker(dict(original, id="not-a-uuid")),
+                   canonical_marker(dict(original, id=original["id"].lower())),
+                   b'{"version":1,"version":1,"id":"' + original['id'].encode() + b'"}\n']
+        for raw in invalid:
+            with self.subTest(raw=raw[:40]):
+                self.marker.write_bytes(raw)
+                self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+        self.error("storageIdentityMismatch", lambda: self.store.storage_id)
+
+    def test_replaced_marker_same_content_is_detected_by_live_instance(self):
+        replacement = self.root / "replacement"
+        replacement.write_bytes(self.marker.read_bytes())
+        replacement.chmod(0o600)
+        os.replace(replacement, self.marker)
+        self.error("storageIdentityMismatch", self.put)
+
+    def test_marker_unsafe_permissions_hardlink_symlink_and_nonregular_rejected(self):
+        self.marker.chmod(0o644)
+        self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+        self.marker.chmod(0o600)
+        hardlink = self.root / "alias"
+        os.link(self.marker, hardlink)
+        self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+        hardlink.unlink()
+        backup = self.root / "saved-marker"
+        self.marker.rename(backup)
+        self.marker.symlink_to(backup)
+        self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+        self.marker.unlink()
+        self.marker.mkdir()
+        self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+        self.marker.rmdir()
+        os.mkfifo(self.marker, 0o600)
+        self.error("invalidStorageIdentity", lambda: ObjectStore(self.root))
+
+    def test_replaced_root_and_cloned_marker_never_rebind_live_instance(self):
+        self.put()
+        marker = self.marker.read_bytes()
+        old_root = Path(self.temp.name) / "old-root"
+        self.root.rename(old_root)
+        self.root.mkdir(mode=0o700)
+        self.marker.write_bytes(marker)
+        self.marker.chmod(0o600)
+        self.error("storageIdentityMismatch", lambda: self.store.storage_id)
+        self.error("storageIdentityMismatch", self.put)
+        self.assertEqual([ObjectStore.identity_marker], [p.name for p in self.root.iterdir()])
+        self.assertEqual(self.body, (old_root / self.store.key(*self.ids)).read_bytes())
+
+    def test_different_root_identity_blocks_live_instance_before_write(self):
+        original = self.store.storage_id
+        self.root.rename(Path(self.temp.name) / "old-root")
+        replacement = ObjectStore(self.root)
+        self.assertNotEqual(original, replacement.storage_id)
+        self.error("storageIdentityMismatch", self.put)
+        self.assertFalse((self.root / "family").exists())
+
+    def test_marker_change_mid_upload_or_read_cannot_complete(self):
+        class Changed(io.BytesIO):
+            def read(source, count=-1):
+                chunk = super(Changed, source).read(count)
+                if self.marker.exists():
+                    self.marker.unlink()
+                return chunk
+        self.error("storageIdentityMismatch", lambda: self.store.put(
+            *self.ids, Changed(self.body), size=len(self.body),
+            sha256=self.ids[2], authorize=allowed,
+        ))
+        self.assertFalse((self.root / self.store.key(*self.ids)).exists())
+        self.assertFalse(list(self.root.rglob(".upload-*")))
+        # A separate new store lets the read test start from a valid identity.
+        read_store = ObjectStore(Path(self.temp.name) / "read-root")
+        content = b"a" * (ObjectStore.chunk_bytes + 1)
+        ids = (*self.ids[:2], hashlib.sha256(content).hexdigest())
+        read_store.put(*ids, io.BytesIO(content), size=len(content), sha256=ids[2], authorize=allowed)
+        stream = read_store.read(*ids, authorize=allowed)
+        self.assertEqual(ObjectStore.chunk_bytes, len(next(stream)))
+        (read_store.root / ObjectStore.identity_marker).unlink()
+        self.error("storageIdentityMismatch", lambda: next(stream))
+
+    def test_interrupted_marker_creation_leaves_no_automatic_identity_recovery(self):
+        root = Path(self.temp.name) / "interrupted-root"
+        with patch("services.family_gateway.storage.os.link", side_effect=OSError("synthetic disk failure")):
+            self.error("invalidStorageIdentity", lambda: ObjectStore(root))
+        self.assertEqual([], list(root.iterdir()))
+        self.error("invalidStorageIdentity", lambda: ObjectStore(root))
+
+
+def canonical_marker(value):
+    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode("ascii")
 
 
 class PolicyTests(unittest.TestCase):
