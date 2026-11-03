@@ -4,6 +4,7 @@ import 'package:jinbao_core/jinbao_core.dart';
 import '../app_model.dart';
 import '../main.dart';
 import '../theme.dart';
+import 'storage_center.dart' show confirmStorageBackup;
 
 /// Port of CloudConnectView.swift. Unsubmitted secrets live only in this widget's
 /// controllers and are cleared on success, cancel or leaving the page.
@@ -64,7 +65,9 @@ class _CloudConnectViewState extends State<CloudConnectView> with WidgetsBinding
     if (!mounted) return;
     if (model.session.link is CloudVerified && !model.bannerIsError) {
       _clearSecrets();
-      if (!widget.mandatory && widget.editingConfiguration) Navigator.of(context).maybePop();
+      if (!widget.mandatory && widget.editingConfiguration) {
+        Navigator.of(context).maybePop();
+      }
     }
   }
 
@@ -75,78 +78,101 @@ class _CloudConnectViewState extends State<CloudConnectView> with WidgetsBinding
     final model = AppScope.of(context);
     if (_obscured) {
       return const Center(
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.lock, color: JinbaoColors.inkSecondary),
-          SizedBox(width: 8),
-          Text('连接信息已隐藏', style: TextStyle(color: JinbaoColors.inkSecondary)),
-        ]),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock, color: JinbaoColors.inkSecondary),
+            SizedBox(width: 8),
+            Text('连接信息已隐藏', style: TextStyle(color: JinbaoColors.inkSecondary)),
+          ],
+        ),
       );
     }
     final link = model.session.link;
     final identity = model.session.identity;
     final showForm = widget.mandatory || _showsForm;
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      Row(children: [
-        const BrandMark(),
-        const SizedBox(width: 12),
-        Text(widget.mandatory ? '连接云存储' : '云备份', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-      ]),
-      const SizedBox(height: 16),
-      const Text('让每一份成长记录安心留下', style: TextStyle(fontSize: 16, color: JinbaoColors.inkSecondary)),
-      if (link is CloudPlaceholder) ...[
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: JinbaoColors.goldSoft, borderRadius: BorderRadius.circular(12)),
-          child: const Row(children: [
-            Icon(Icons.smartphone, size: 18),
-            SizedBox(width: 8),
-            Text('占位连接 · 仅保存在这台手机', style: TextStyle(fontWeight: FontWeight.w600)),
-          ]),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Row(
+          children: [
+            const BrandMark(),
+            const SizedBox(width: 12),
+            Text(widget.mandatory ? '连接云存储' : '云备份', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+          ],
         ),
-      ],
-      if (identity != null) ...[
         const SizedBox(height: 16),
-        Row(children: [
-          const Text('这台手机', style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
-          const SizedBox(width: 8),
-          ParentBadge(identity),
-        ]),
-      ],
-      const SizedBox(height: 16),
-      if (!showForm)
-        BrandCard(child: _connectedActions(model))
-      else ...[
-        const Text('填写具有所需目录权限的腾讯云密钥。密钥只保存在这台手机的安全存储里。',
-            style: TextStyle(fontSize: 14, color: JinbaoColors.inkSecondary)),
-        const SizedBox(height: 16),
-        BrandCard(child: _form(model)),
-      ],
-      if (model.banner != null) ...[
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: model.bannerIsError ? JinbaoColors.problemSoft : JinbaoColors.goldSoft,
-            borderRadius: BorderRadius.circular(12),
+        const Text('让每一份成长记录安心留下', style: TextStyle(fontSize: 16, color: JinbaoColors.inkSecondary)),
+        if (link is CloudPlaceholder) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: JinbaoColors.goldSoft, borderRadius: BorderRadius.circular(12)),
+            child: const Row(
+              children: [
+                Icon(Icons.smartphone, size: 18),
+                SizedBox(width: 8),
+                Text('占位连接 · 仅保存在这台手机', style: TextStyle(fontWeight: FontWeight.w600)),
+              ],
+            ),
           ),
-          child: Text(model.banner!,
-              style: TextStyle(color: model.bannerIsError ? JinbaoColors.problem : JinbaoColors.ink)),
+        ],
+        if (identity != null) ...[
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text('这台手机', style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
+              const SizedBox(width: 8),
+              ParentBadge(identity),
+            ],
+          ),
+        ],
+        const SizedBox(height: 16),
+        if (!showForm)
+          BrandCard(child: _connectedActions(model))
+        else ...[
+          const Text(
+            '填写具有所需目录权限的腾讯云密钥。密钥只保存在这台手机的安全存储里。',
+            style: TextStyle(fontSize: 14, color: JinbaoColors.inkSecondary),
+          ),
+          const SizedBox(height: 16),
+          BrandCard(child: _form(model)),
+        ],
+        if (model.banner != null) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: model.bannerIsError ? JinbaoColors.problemSoft : JinbaoColors.goldSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              model.banner!,
+              style: TextStyle(color: model.bannerIsError ? JinbaoColors.problem : JinbaoColors.ink),
+            ),
+          ),
+        ],
+        const SizedBox(height: 16),
+        BrandCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '存储位置',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: JinbaoColors.inkSecondary),
+              ),
+              const SizedBox(height: 6),
+              SelectableText(_writePath(model), style: const TextStyle(fontSize: 13, fontFamily: 'monospace')),
+              const SizedBox(height: 6),
+              const Text(
+                '读取爸爸 life/v1/dad/ 和妈妈 life/v1/mom/，含各设备目录。旧根目录只读，云端文件不会删除。',
+                style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary),
+              ),
+            ],
+          ),
         ),
       ],
-      const SizedBox(height: 16),
-      BrandCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('存储位置',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: JinbaoColors.inkSecondary)),
-          const SizedBox(height: 6),
-          SelectableText(_writePath(model), style: const TextStyle(fontSize: 13, fontFamily: 'monospace')),
-          const SizedBox(height: 6),
-          const Text('读取爸爸 life/v1/dad/ 和妈妈 life/v1/mom/，含各设备目录。旧根目录只读，云端文件不会删除。',
-              style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
-        ]),
-      ),
-    ]);
+    );
   }
 
   String _writePath(AppModel model) {
@@ -158,92 +184,110 @@ class _CloudConnectViewState extends State<CloudConnectView> with WidgetsBinding
   }
 
   Widget _field(String title, TextEditingController controller, {bool secure = false}) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: JinbaoColors.inkSecondary)),
-          const SizedBox(height: 6),
-          TextField(
-            controller: controller,
-            obscureText: secure,
-            enableSuggestions: false,
-            autocorrect: false,
-            keyboardType: TextInputType.visiblePassword,
-            decoration: InputDecoration(hintText: title),
-          ),
-        ]),
-      );
-
-  Widget _form(AppModel model) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        _field('存储桶', _bucket),
-        _field('地域', _region),
-        _field('密钥编号', _secretID, secure: !_revealID),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: () => setState(() => _revealID = !_revealID),
-            child: Text(_revealID ? '隐藏密钥编号' : '显示密钥编号', style: const TextStyle(fontSize: 13)),
-          ),
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: JinbaoColors.inkSecondary),
         ),
-        _field('密钥', _secretKey, secure: true),
-        _field('临时令牌（可选）', _token, secure: true),
-        const Text('使用临时密钥时填写临时令牌；长期密钥可留空。令牌过期后需更新。编号和密钥各为 1 至 1024 位。',
-            style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
-        const SizedBox(height: 12),
-        GoldButton(title: model.busy ? '正在验证…' : '验证并继续', enabled: !model.busy, onPressed: () => _verify(model)),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          obscureText: secure,
+          enableSuggestions: false,
+          autocorrect: false,
+          keyboardType: TextInputType.visiblePassword,
+          decoration: InputDecoration(hintText: title),
+        ),
+      ],
+    ),
+  );
+
+  Widget _form(AppModel model) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _field('存储桶', _bucket),
+      _field('地域', _region),
+      _field('密钥编号', _secretID, secure: !_revealID),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () => setState(() => _revealID = !_revealID),
+          child: Text(_revealID ? '隐藏密钥编号' : '显示密钥编号', style: const TextStyle(fontSize: 13)),
+        ),
+      ),
+      _field('密钥', _secretKey, secure: true),
+      _field('临时令牌（可选）', _token, secure: true),
+      const Text(
+        '使用临时密钥时填写临时令牌；长期密钥可留空。令牌过期后需更新。编号和密钥各为 1 至 1024 位。',
+        style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary),
+      ),
+      const SizedBox(height: 12),
+      GoldButton(title: model.busy ? '正在验证…' : '验证并继续', enabled: !model.busy, onPressed: () => _verify(model)),
+      TextButton(
+        onPressed: () {
+          _clearSecrets();
+          model.cancelCloudConfiguration();
+          _bucket.text = model.bucket;
+          _region.text = model.region;
+          if (!widget.mandatory) Navigator.of(context).maybePop();
+        },
+        child: const Text('取消配置'),
+      ),
+      if (AppModel.isTestBuild) ...[
         TextButton(
           onPressed: () {
-            _clearSecrets();
-            model.cancelCloudConfiguration();
-            _bucket.text = model.bucket;
-            _region.text = model.region;
-            if (!widget.mandatory) Navigator.of(context).maybePop();
+            model.bucket = _bucket.text;
+            model.region = _region.text;
+            model.connectPlaceholder();
           },
-          child: const Text('取消配置'),
+          child: const Text('占位连接，先看时间线', style: TextStyle(fontWeight: FontWeight.w600)),
         ),
-        if (AppModel.isTestBuild) ...[
-          TextButton(
-            onPressed: () {
-              model.bucket = _bucket.text;
-              model.region = _region.text;
-              model.connectPlaceholder();
-            },
-            child: const Text('占位连接，先看时间线', style: TextStyle(fontWeight: FontWeight.w600)),
-          ),
-          const Text('占位只在测试版出现。它不保存密钥，也不上传。',
-              style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
-        ],
-      ]);
+        const Text('占位只在测试版出现。它不保存密钥，也不上传。', style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
+      ],
+    ],
+  );
 
   Widget _connectedActions(AppModel model) {
     final progress = model.backupProgress;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(model.backupStatusTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-      const SizedBox(height: 12),
-      Text('存储桶：${model.bucket}\n地域：${model.region}', style: const TextStyle(color: JinbaoColors.inkSecondary)),
-      const SizedBox(height: 12),
-      Text(model.backupStatusDetail, style: const TextStyle(color: JinbaoColors.inkSecondary)),
-      if (progress != null) ...[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(model.backupStatusTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 12),
-        LinearProgressIndicator(value: progress, color: JinbaoColors.ink, backgroundColor: JinbaoColors.separator),
+        Text('存储桶：${model.bucket}\n地域：${model.region}', style: const TextStyle(color: JinbaoColors.inkSecondary)),
+        const SizedBox(height: 12),
+        Text(model.backupStatusDetail, style: const TextStyle(color: JinbaoColors.inkSecondary)),
+        if (progress != null) ...[
+          const SizedBox(height: 12),
+          LinearProgressIndicator(value: progress, color: JinbaoColors.ink, backgroundColor: JinbaoColors.separator),
+        ],
+        const SizedBox(height: 12),
+        if (model.backupRunning)
+          TextButton(onPressed: model.pauseBackup, child: const Text('暂停备份'))
+        else ...[
+          GoldButton(title: '立即备份 / 重试', enabled: !model.busy, onPressed: () => confirmStorageBackup(context)),
+          TextButton(onPressed: () => confirmStorageBackup(context), child: const Text('继续未完成的备份')),
+        ],
+        TextButton(onPressed: model.refreshRemote, child: const Text('重新读取家庭时光')),
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: JinbaoColors.problem),
+          onPressed: () async {
+            if (await confirmAction(
+              context,
+              title: '断开云存储？',
+              message: '这台手机上的记录仍然保留。',
+              confirm: '断开连接',
+              destructive: true,
+            )) {
+              await model.disconnect();
+            }
+          },
+          child: const Text('断开云存储'),
+        ),
       ],
-      const SizedBox(height: 12),
-      if (model.backupRunning)
-        TextButton(onPressed: model.pauseBackup, child: const Text('暂停备份'))
-      else ...[
-        GoldButton(title: '立即备份 / 重试', enabled: !model.busy, onPressed: model.backupNow),
-        TextButton(onPressed: model.backupNow, child: const Text('继续未完成的备份')),
-      ],
-      TextButton(onPressed: model.refreshRemote, child: const Text('重新读取家庭时光')),
-      TextButton(
-        style: TextButton.styleFrom(foregroundColor: JinbaoColors.problem),
-        onPressed: () async {
-          if (await confirmAction(context,
-              title: '断开云存储？', message: '这台手机上的记录仍然保留。', confirm: '断开连接', destructive: true)) {
-            await model.disconnect();
-          }
-        },
-        child: const Text('断开云存储'),
-      ),
-    ]);
+    );
   }
 }

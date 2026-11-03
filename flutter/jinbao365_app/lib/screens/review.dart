@@ -18,7 +18,7 @@ class ReviewScreen extends StatelessWidget {
     final months = JinbaoCalendar.months(entries.where((e) => e.occurredAt > 0).toList(), const DeviceZone());
     final unknown = entries.where((e) => e.occurredAt <= 0).length;
     return Scaffold(
-      appBar: AppBar(title: const Text('回顾')),
+      appBar: AppBar(title: const Text('回忆')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
         if (months.isEmpty) ...[
           const FeatureEmptyState(title: '成长值得慢慢回看', detail: '留下第一条记录，就会有属于这个月的回顾。', icon: Icons.calendar_today_outlined),

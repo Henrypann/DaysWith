@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:jinbao_core/jinbao_core.dart';
 
 import 'app_model.dart';
-import 'screens/cloud_connect.dart';
 import 'screens/shell.dart';
 import 'theme.dart';
 
@@ -78,12 +77,95 @@ class RootView extends StatelessWidget {
     final recovery = model.archiveRecoveryMessage;
     if (recovery != null) return ArchiveRecoveryView(message: recovery);
     return switch (model.session.phase) {
-      AppPhase.chooseIdentity => const IdentityView(),
-      AppPhase.connectCloud => const Scaffold(body: SafeArea(child: CloudConnectView(mandatory: true))),
+      AppPhase.chooseIdentity => const WelcomeView(),
+      // Retain the legacy enum without blocking access to local records.
+      AppPhase.connectCloud => const MainShell(),
       AppPhase.timeline => const MainShell(),
     };
   }
 }
+
+class WelcomeView extends StatefulWidget {
+  const WelcomeView({super.key});
+
+  @override
+  State<WelcomeView> createState() => _WelcomeViewState();
+}
+
+class _WelcomeViewState extends State<WelcomeView> {
+  bool _choosingIdentity = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_choosingIdentity) {
+      return IdentityView(onBack: () => setState(() => _choosingIdentity = false));
+    }
+    return Scaffold(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            const SizedBox(height: 32),
+            const Center(child: BrandWordmark()),
+            const SizedBox(height: 32),
+            const BrandCard(
+              color: JinbaoColors.goldSoft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '留住一起度过的日子',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    '用照片、视频和文字，记录家人的成长。没有网络，也可以开始。',
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            GoldButton(
+              title: '开始记录',
+              onPressed: () => setState(() => _choosingIdentity = true),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
+              onPressed: () => showFamilyJoinAvailability(context),
+              child: const Text('加入家庭', style: TextStyle(fontSize: 17)),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              '开始后仅保存在本机。你可以稍后连接自己的存储，为记录建立远端副本。',
+              style: TextStyle(fontSize: 15, color: JinbaoColors.inkSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> showFamilyJoinAvailability(BuildContext context) =>
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('加入家庭暂未开放'),
+        content: const SingleChildScrollView(
+          child: Text('家庭邀请仍在实验阶段，可信授权服务尚未就绪，暂时不能扫码加入。你可以先开始记录；本机记录不会因此上传或分享。'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('知道了'),
+          ),
+        ],
+      ),
+    );
 
 class ArchiveRecoveryView extends StatelessWidget {
   final String message;
@@ -116,7 +198,8 @@ class ArchiveRecoveryView extends StatelessWidget {
 }
 
 class IdentityView extends StatelessWidget {
-  const IdentityView({super.key});
+  final VoidCallback? onBack;
+  const IdentityView({super.key, this.onBack});
 
   Future<void> _choose(BuildContext context, ParentIdentity parent) async {
     final model = AppScope.read(context);
@@ -138,6 +221,10 @@ class IdentityView extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = AppScope.of(context);
     return Scaffold(
+      appBar: onBack == null ? null : AppBar(
+        title: const Text('开始记录'),
+        leading: BackButton(onPressed: onBack),
+      ),
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(24), children: [
           const Padding(padding: EdgeInsets.only(top: 24, bottom: 32), child: Center(child: BrandWordmark())),

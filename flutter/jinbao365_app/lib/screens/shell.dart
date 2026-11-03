@@ -12,35 +12,22 @@ import 'timeline.dart';
 enum ComposerStart { resume, pickMedia, camera }
 
 /// Opens the composer as a full-screen page, starting or resuming the durable draft.
-Future<void> openComposer(BuildContext context, {ComposerStart start = ComposerStart.resume}) async {
+Future<void> openComposer(
+  BuildContext context, {
+  ComposerStart start = ComposerStart.resume,
+}) async {
   final model = AppScope.read(context);
   if (!model.beginDraft()) return;
-  await Navigator.of(context).push(MaterialPageRoute<void>(
-    fullscreenDialog: true,
-    builder: (_) => ComposerPage(start: start),
-  ));
+  await Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (_) => ComposerPage(start: start),
+    ),
+  );
 }
 
-/// Port of MainShell.swift: banner, tab content, capsule bar with the gold ＋ in the middle.
-class MainShell extends StatefulWidget {
+class MainShell extends StatelessWidget {
   const MainShell({super.key});
-
-  @override
-  State<MainShell> createState() => _MainShellState();
-}
-
-class _MainShellState extends State<MainShell> {
-  bool _addMenuOpen = false;
-
-  void _select(AppModel model, ShellTab tab) {
-    setState(() => _addMenuOpen = false);
-    model.selectTab(tab);
-  }
-
-  void _add(ComposerStart start) {
-    setState(() => _addMenuOpen = false);
-    openComposer(context, start: start);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,71 +36,89 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: Stack(children: [
-          Column(children: [
+        child: Column(
+          children: [
             if (model.banner != null)
               GestureDetector(
                 onTap: model.clearBanner,
-                child: StatusBanner(text: model.banner!, isError: model.bannerIsError),
+                child: StatusBanner(
+                  text: model.banner!,
+                  isError: model.bannerIsError,
+                ),
+              ),
+            if (!model.session.link.isVerified)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.phone_android_outlined,
+                      size: 18,
+                      color: JinbaoColors.inkSecondary,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '仅保存在本机 · 可稍后连接存储',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: JinbaoColors.inkSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             Expanded(
               child: switch (model.tab) {
                 ShellTab.timeline => const TimelineScreen(),
-                ShellTab.anniversaries => const AnniversariesScreen(),
+                // Keep the old navigation value so this UI change does not rewrite
+                // any model or archive identifiers.
+                ShellTab.anniversaries => const RecordHomeScreen(),
                 ShellTab.review => const ReviewScreen(),
                 ShellTab.my => const MyScreen(),
               },
             ),
-          ]),
-          if (_addMenuOpen) _addMenu(),
-        ]),
+          ],
+        ),
       ),
-      bottomNavigationBar: keyboard ? null : SafeArea(top: false, child: _capsuleBar(model)),
+      bottomNavigationBar: keyboard
+          ? null
+          : SafeArea(top: false, child: _navigation(model)),
     );
   }
 
-  Widget _capsuleBar(AppModel model) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        child: Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
-          Container(
-            constraints: const BoxConstraints(minHeight: 64),
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: JinbaoColors.surface,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: Colors.black.withValues(alpha: 15 / 255), width: 0.5),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 12, offset: const Offset(0, 4))],
-            ),
-            child: Row(children: [
-              _barButton(model, '时光', Icons.photo_library_outlined, ShellTab.timeline),
-              _barButton(model, '纪念', Icons.favorite_border, ShellTab.anniversaries),
-              const SizedBox(width: 60, height: 48),
-              _barButton(model, '回顾', Icons.calendar_today_outlined, ShellTab.review),
-              _barButton(model, '我的', Icons.account_circle_outlined, ShellTab.my),
-            ]),
+  Widget _navigation(AppModel model) => Padding(
+    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+    child: Material(
+      color: JinbaoColors.surface,
+      borderRadius: BorderRadius.circular(24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _barButton(
+            model,
+            '时光',
+            Icons.photo_library_outlined,
+            ShellTab.timeline,
           ),
-          Positioned(
-            top: -8,
-            child: Semantics(
-              label: '添加记录',
-              button: true,
-              child: GestureDetector(
-                onTap: () => setState(() => _addMenuOpen = !_addMenuOpen),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: JinbaoColors.gold,
-                    shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 8, offset: const Offset(0, 3))],
-                  ),
-                  child: const Icon(Icons.add, size: 32, color: JinbaoColors.ink),
-                ),
-              ),
-            ),
+          _barButton(
+            model,
+            '记录',
+            Icons.add_circle_outline,
+            ShellTab.anniversaries,
           ),
-        ]),
-      );
+          _barButton(
+            model,
+            '回忆',
+            Icons.calendar_today_outlined,
+            ShellTab.review,
+          ),
+          _barButton(model, '我的', Icons.account_circle_outlined, ShellTab.my),
+        ],
+      ),
+    ),
+  );
 
   Widget _barButton(AppModel model, String title, IconData icon, ShellTab tab) {
     final selected = model.tab == tab;
@@ -123,62 +128,102 @@ class _MainShellState extends State<MainShell> {
         button: true,
         label: title,
         child: InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: () => _select(model, tab),
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => model.selectTab(tab),
           child: Container(
-            constraints: const BoxConstraints(minHeight: 48),
+            constraints: const BoxConstraints(minHeight: 64),
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 10),
             decoration: BoxDecoration(
               color: selected ? JinbaoColors.goldSoft : Colors.transparent,
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(24),
             ),
-            child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(icon, size: 24, color: selected ? JinbaoColors.ink : JinbaoColors.outline),
-              const SizedBox(height: 2),
-              Text(title,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 24,
+                  color: selected ? JinbaoColors.ink : JinbaoColors.outline,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: selected ? JinbaoColors.ink : JinbaoColors.inkSecondary)),
-            ]),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selected
+                        ? JinbaoColors.ink
+                        : JinbaoColors.inkSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _addMenu() => Positioned.fill(
-        child: GestureDetector(
-          onTap: () => setState(() => _addMenuOpen = false),
-          child: Container(
-            color: Colors.black.withValues(alpha: 0.04),
-            alignment: Alignment.bottomCenter,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Material(
-              color: JinbaoColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              elevation: 6,
-              shadowColor: JinbaoColors.ink.withValues(alpha: 0.3),
-              clipBehavior: Clip.antiAlias,
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                _menuRow('拍照', Icons.photo_camera_outlined, () => _add(ComposerStart.camera)),
-                _menuRow('选照片或视频', Icons.photo_outlined, () => _add(ComposerStart.pickMedia)),
-                _menuRow('写文字', Icons.edit_note, () => _add(ComposerStart.resume)),
-              ]),
+/// A stable destination for common recording actions, including large text users.
+class RecordHomeScreen extends StatelessWidget {
+  const RecordHomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('记录')),
+    body: ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Text(
+          '留下一点今天',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          '主动选择照片或视频，或写下想记住的事。',
+          style: TextStyle(fontSize: 16, color: JinbaoColors.inkSecondary),
+        ),
+        const SizedBox(height: 20),
+        BrandCard(
+          child: Column(
+            children: [
+              FeatureRow(
+                title: '添加照片或视频',
+                icon: Icons.photo_library_outlined,
+                onTap: () =>
+                    openComposer(context, start: ComposerStart.pickMedia),
+              ),
+              const Divider(),
+              FeatureRow(
+                title: '拍照',
+                icon: Icons.photo_camera_outlined,
+                onTap: () => openComposer(context, start: ComposerStart.camera),
+              ),
+              const Divider(),
+              FeatureRow(
+                title: '写文字',
+                icon: Icons.edit_note,
+                onTap: () => openComposer(context),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        BrandCard(
+          child: FeatureRow(
+            title: '纪念日',
+            subtitle: '记录、编辑和回看重要的日子',
+            icon: Icons.favorite_border,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const AnniversariesScreen(),
+              ),
             ),
           ),
         ),
-      );
-
-  Widget _menuRow(String title, IconData icon, VoidCallback onTap) => InkWell(
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 56),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          child: Row(children: [
-            SizedBox(width: 24, child: Icon(icon, color: JinbaoColors.ink)),
-            const SizedBox(width: 16),
-            Text(title, style: const TextStyle(fontSize: 16)),
-          ]),
-        ),
-      );
+      ],
+    ),
+  );
 }

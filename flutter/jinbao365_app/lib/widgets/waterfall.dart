@@ -20,10 +20,10 @@ class Waterfall extends MultiChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderWaterfall(columns: columns, columnSpacing: columnSpacing, rowSpacing: rowSpacing);
+      RenderWaterfall(columns: columns, columnSpacing: columnSpacing, rowSpacing: rowSpacing);
 
   @override
-  void updateRenderObject(BuildContext context, _RenderWaterfall renderObject) {
+  void updateRenderObject(BuildContext context, RenderWaterfall renderObject) {
     renderObject
       ..columns = columns
       ..columnSpacing = columnSpacing
@@ -33,12 +33,11 @@ class Waterfall extends MultiChildRenderObjectWidget {
 
 class _WaterfallParentData extends ContainerBoxParentData<RenderBox> {}
 
-class _RenderWaterfall extends RenderBox
-    with ContainerRenderObjectMixin<RenderBox, _WaterfallParentData>, RenderBoxContainerDefaultsMixin<RenderBox, _WaterfallParentData> {
-  _RenderWaterfall({required int columns, required double columnSpacing, required double rowSpacing})
-      : _columns = columns,
-        _columnSpacing = columnSpacing,
-        _rowSpacing = rowSpacing;
+class RenderWaterfall extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _WaterfallParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _WaterfallParentData> {
+  RenderWaterfall({required this._columns, required this._columnSpacing, required this._rowSpacing});
 
   int _columns;
   set columns(int value) {
@@ -63,7 +62,9 @@ class _RenderWaterfall extends RenderBox
 
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! _WaterfallParentData) child.parentData = _WaterfallParentData();
+    if (child.parentData is! _WaterfallParentData) {
+      child.parentData = _WaterfallParentData();
+    }
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -10,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'android_legacy_upgrade.dart';
 import 'credential_store.dart';
 import 'media_import.dart';
+import 'webdav_credential_store.dart';
 
 enum ShellTab { timeline, anniversaries, review, my }
 
@@ -43,7 +45,32 @@ class AppModel extends ChangeNotifier {
   /// connection is offered. Build with `--dart-define=JINBAO_TEST_BUILD=false` for family writes.
   static const isTestBuild = bool.fromEnvironment('JINBAO_TEST_BUILD', defaultValue: true);
 
-  final CredentialStore _credentials = CredentialStore();
+  final CredentialStore _credentials;
+  final Future<List<ConnectivityResult>> Function() _connectivityCheck;
+  final StorageProvider Function(CloudLink link, String prefix)? _providerFactory;
+  AppModel({
+    CredentialStore? credentials,
+    WebDavCredentialStore? webdavCredentials,
+    Future<List<ConnectivityResult>> Function()? connectivityCheck,
+    this._providerFactory,
+  }) : _credentials = credentials ?? CredentialStore(),
+       _webdavCredentials = webdavCredentials ?? WebDavCredentialStore(),
+       _connectivityCheck = connectivityCheck ?? Connectivity().checkConnectivity;
+
+  @visibleForTesting
+  void initializeForTesting({required String path, required AppSession initial, SharedPreferences? preferences}) {
+    if (!initial.testBuild) {
+      throw StateError('Synthetic test archive required.');
+    }
+    directory = path;
+    _store = ArchiveStore('$path/archive.json');
+    _preferences = preferences;
+    session = initial;
+    _store.save(PersistedArchive.fromSession(initial));
+    ready = true;
+    _loadStorageStatus();
+  }
+
   late final String directory;
   late ArchiveStore _store;
   late AppSession session;
@@ -58,6 +85,48 @@ class AppModel extends ChangeNotifier {
   ShellTab tab = ShellTab.timeline;
   bool backupRunning = false;
   bool allowCellularOriginals = false;
+  bool wifiOnlyBackup = true;
+  bool _backupRequested = false;
+  bool restoring = false;
+  ArchiveRestoreResult? lastRestoreResult;
+  String? restoreError;
+  String storageHealthLabel = '尚未检查';
+  DateTime? lastSuccessfulBackup;
+  final WebDavCredentialStore _webdavCredentials;
+
+  String get storageTargetLabel => switch (session.link) {
+    CloudWebDav(:final name) => name,
+    CloudVerified(:final bucket) => '腾讯云 COS · $bucket',
+    _ => '仅保存在本机',
+  };
+  int get pendingStorageCount => _backupRequested || session.backupJob?.status == BackupJobStatus.queued
+      ? (session.backupJob?.totalCount ?? backupMediaCount)
+      : 0;
+  int get failedStorageCount => session.backupJob?.status == BackupJobStatus.failed ? 1 : 0;
+  int get backupMediaCount => session.moments.where((m) => m.parent == session.identity).expand((m) => m.assets).length;
+  int get backupByteCount => session.moments
+      .where((m) => m.parent == session.identity)
+      .expand((m) => m.assets)
+      .expand((a) => a.resources)
+      .fold(0, (sum, r) => sum + r.byteCount);
+  int get backupRecordCount => session.moments.where((m) => m.parent == session.identity).length;
+
+  Future<void> setWifiOnlyBackup(bool value) async {
+    await _preferences?.setBool('wifiOnlyBackup', value);
+    wifiOnlyBackup = value;
+    notifyListeners();
+  }
+
+  String get _successKey =>
+      'storage-success-${Digest.sha256Hex(utf8.encode(jsonEncode(session.link.storageIdentity?.toJson())))}';
+  void _loadStorageStatus() {
+    final timestamp = _preferences?.getInt(_successKey);
+    lastSuccessfulBackup = timestamp == null ? null : DateTime.fromMillisecondsSinceEpoch(timestamp);
+    _backupRequested =
+        session.link.storageIdentity != null &&
+        _preferences?.getString('backupRequestedFor') == jsonEncode(session.link.storageIdentity!.toJson());
+  }
+
   final Map<String, PreviewLoad> previewLoads = {};
   final Map<String, PreviewLoad> originalLoads = {};
 
@@ -77,15 +146,13 @@ class AppModel extends ChangeNotifier {
     _store = ArchiveStore('$directory/archive.json');
     _preferences = await SharedPreferences.getInstance();
     allowCellularOriginals = _preferences?.getBool('allowCellularOriginals') ?? false;
+    wifiOnlyBackup = _preferences?.getBool('wifiOnlyBackup') ?? true;
     AppSession? loaded;
     try {
       if (Platform.isAndroid) {
         _legacyUpgradePending = !File(_store.path).existsSync() && !File(_store.recoveryPath).existsSync();
-        await AndroidLegacyUpgrade(credentials: _credentials).migrateIfNeeded(
-          store: _store,
-          directory: directory,
-          testBuild: isTestBuild,
-        );
+        await AndroidLegacyUpgrade(credentials: _credentials)
+            .migrateIfNeeded(store: _store, directory: directory, testBuild: isTestBuild);
         _legacyUpgradePending = false;
       }
       loaded = _store.load()?.session();
@@ -97,6 +164,7 @@ class AppModel extends ChangeNotifier {
     final restored = loaded ?? AppSession(deviceID: newUuid().toLowerCase(), testBuild: isTestBuild);
     restored.testBuild = isTestBuild;
     session = restored;
+    _loadStorageStatus();
     bucket = restored.link.bucket ?? bucket;
     region = restored.link.region ?? region;
     if (archiveRecoveryMessage == null) {
@@ -131,11 +199,8 @@ class AppModel extends ChangeNotifier {
     busy = true;
     try {
       if (_legacyUpgradePending) {
-        await AndroidLegacyUpgrade(credentials: _credentials).migrateIfNeeded(
-          store: _store,
-          directory: directory,
-          testBuild: isTestBuild,
-        );
+        await AndroidLegacyUpgrade(credentials: _credentials)
+            .migrateIfNeeded(store: _store, directory: directory, testBuild: isTestBuild);
         _legacyUpgradePending = false;
       }
       final restored = _store.load()?.session();
@@ -165,27 +230,35 @@ class AppModel extends ChangeNotifier {
 
   void connectPlaceholder() {
     if (!isTestBuild) return;
-    if (busy || backupRunning) {
+    if (busy || backupRunning || restoring) {
       show(const ContractError('backup', '请等待连接验证完成，或先暂停备份。'));
       return;
     }
-    if (!_mutate((s) => s.connectPlaceholder(bucket: swiftTrim(bucket), region: swiftTrim(region)))) return;
+    if (!_mutate((s) => s.connectPlaceholder(bucket: swiftTrim(bucket), region: swiftTrim(region)))) {
+      return;
+    }
     _connectionGeneration++;
     _refreshing = false;
     _setBanner('这是占位连接，没有保存密钥，也不会上传。');
   }
 
   Future<void> verify({required String secretID, required String secretKey, required String sessionToken}) async {
-    if (busy || backupRunning) return;
+    if (busy || backupRunning || restoring) return;
     final credentials = StorageCredentials(
       secretID: swiftTrim(secretID),
       secretKey: swiftTrim(secretKey),
       sessionToken: sessionToken.isEmpty ? null : sessionToken,
     );
-    final configuration = StorageConfiguration(bucket: swiftTrim(bucket), region: swiftTrim(region), prefix: 'life/v1/');
+    final configuration = StorageConfiguration(
+      bucket: swiftTrim(bucket),
+      region: swiftTrim(region),
+      prefix: 'life/v1/',
+    );
     try {
       configuration.validate();
-      if (!credentials.isValid) throw const CosFailure(ConnectionFailure.configuration);
+      if (!credentials.isValid) {
+        throw const CosFailure(ConnectionFailure.configuration);
+      }
     } catch (error) {
       show(error);
       return;
@@ -198,13 +271,24 @@ class AppModel extends ChangeNotifier {
     notifyListeners();
     try {
       final client = CosClient(
-          configuration: configuration, credentials: credentials, transport: HttpObjectTransport(configuration));
+        configuration: configuration,
+        credentials: credentials,
+        transport: HttpObjectTransport(configuration),
+      );
       await client.list(prefix: ParentIdentity.dad.prefix);
       await client.list(prefix: ParentIdentity.mom.prefix);
       if (_connectionGeneration != generation) return;
-      busy = false;
-      final previous = await _credentials.load().catchError((_) => null);
+      final previous = await _credentials.load();
+      if (_connectionGeneration != generation) return;
       await _credentials.save(credentials);
+      if (_connectionGeneration != generation) {
+        if (previous != null) {
+          await _credentials.save(previous);
+        } else {
+          await _credentials.delete();
+        }
+        return;
+      }
       final ok = _mutate((s) {
         final changed = s.link.bucket != configuration.bucket || s.link.region != configuration.region;
         s.connectVerified(bucket: configuration.bucket, region: configuration.region);
@@ -231,7 +315,10 @@ class AppModel extends ChangeNotifier {
       }
       previewLoads.clear();
       originalLoads.clear();
-      _setBanner('云存储已连接');
+      storageHealthLabel = '读取连接正常；写入按备份任务校验';
+      await _preferences?.remove('backupRequestedFor');
+      _loadStorageStatus();
+      _setBanner('云存储已连接，历史本地记录需手动确认备份。');
       _refreshing = false;
       refreshRemote();
       _scheduleAutomaticBackup();
@@ -239,6 +326,9 @@ class AppModel extends ChangeNotifier {
       if (_connectionGeneration != generation) return;
       busy = false;
       show(error);
+    } finally {
+      busy = false;
+      notifyListeners();
     }
   }
 
@@ -252,6 +342,7 @@ class AppModel extends ChangeNotifier {
       _setBanner('正在暂停备份，完成当前文件后可断开连接。');
       return;
     }
+    final disconnectedLink = session.link;
     if (!_mutate((s) {
       s.disconnectCloud();
       s.remote = [];
@@ -262,7 +353,15 @@ class AppModel extends ChangeNotifier {
     _connectionGeneration++;
     _refreshing = false;
     try {
-      await _credentials.delete();
+      if (disconnectedLink is CloudWebDav) {
+        await _webdavCredentials.delete();
+      } else {
+        await _credentials.delete();
+      }
+      await _preferences?.remove('backupRequestedFor');
+      _backupRequested = false;
+      lastSuccessfulBackup = null;
+      storageHealthLabel = '未连接';
     } catch (error) {
       show(error);
       return;
@@ -275,7 +374,6 @@ class AppModel extends ChangeNotifier {
   void cancelCloudConfiguration() {
     if (busy) {
       _connectionGeneration++;
-      busy = false;
       _refreshing = false;
     }
     bucket = session.link.bucket ?? bucket;
@@ -321,11 +419,15 @@ class AppModel extends ChangeNotifier {
   }
 
   void trashMoment(String id) {
-    if (_mutate((s) => s.trashMoment(id: id, now: now))) _scheduleAutomaticBackup();
+    if (_mutate((s) => s.trashMoment(id: id, now: now))) {
+      _scheduleAutomaticBackup();
+    }
   }
 
   void restoreMoment(String id) {
-    if (_mutate((s) => s.restoreMoment(id: id, now: now))) _scheduleAutomaticBackup();
+    if (_mutate((s) => s.restoreMoment(id: id, now: now))) {
+      _scheduleAutomaticBackup();
+    }
   }
 
   bool saveAnniversary({String? id, required String title, required String date}) {
@@ -335,7 +437,9 @@ class AppModel extends ChangeNotifier {
   }
 
   void deleteAnniversary(String id) {
-    if (_mutate((s) => s.deleteAnniversary(id: id, now: now))) _scheduleAutomaticBackup();
+    if (_mutate((s) => s.deleteAnniversary(id: id, now: now))) {
+      _scheduleAutomaticBackup();
+    }
   }
 
   Future<void> setAllowCellularOriginals(bool allowed) async {
@@ -356,24 +460,123 @@ class AppModel extends ChangeNotifier {
 
   // Family read.
 
-  Future<CosClient> _client(String prefix) async {
+  Future<StorageProvider> _client(String prefix) async {
     final link = session.link;
+    final injected = _providerFactory;
+    if (injected != null) return injected(link, prefix);
+    if (link case CloudWebDav(:final endpoint)) {
+      final saved = await _webdavCredentials.load();
+      if (saved == null || saved.url != endpoint) {
+        throw const CosFailure(ConnectionFailure.secureStorage);
+      }
+      final provider = WebDavStorageProvider(
+        configuration: WebDavConfiguration(baseUrl: endpoint, prefix: prefix),
+        credentials: WebDavCredentials(username: saved.username, password: saved.password),
+      );
+      if (provider.identity.accountScope != link.storageIdentity?.accountScope) {
+        throw const CosFailure(ConnectionFailure.secureStorage);
+      }
+      return provider;
+    }
     final credentials = await _credentials.load();
-    if (credentials == null) throw const CosFailure(ConnectionFailure.secureStorage);
-    final configuration = StorageConfiguration(bucket: link.bucket ?? '', region: link.region ?? '', prefix: prefix);
-    return CosClient(configuration: configuration, credentials: credentials, transport: HttpObjectTransport(configuration));
+    if (credentials == null || link is! CloudVerified) {
+      throw const CosFailure(ConnectionFailure.secureStorage);
+    }
+    final configuration = StorageConfiguration(bucket: link.bucket, region: link.region, prefix: prefix);
+    return CosStorageProvider(
+      CosClient(configuration: configuration, credentials: credentials, transport: HttpObjectTransport(configuration)),
+    );
+  }
+
+  Future<void> verifyWebDav({
+    required String name,
+    required String url,
+    required String username,
+    required String password,
+  }) async {
+    if (busy || backupRunning || restoring || archiveRecoveryMessage != null) {
+      return;
+    }
+    final generation = ++_connectionGeneration;
+    _refreshing = false;
+    busy = true;
+    notifyListeners();
+    try {
+      final configuration = WebDavConfiguration(baseUrl: url);
+      final saved = WebDavSavedConnection(
+        name: name,
+        url: configuration.baseUri.toString(),
+        username: username,
+        password: password,
+      );
+      final provider = WebDavStorageProvider(
+        configuration: configuration,
+        credentials: WebDavCredentials(username: username, password: password),
+      );
+      await provider.connect();
+      if (_connectionGeneration != generation) return;
+      final previous = await _webdavCredentials.load();
+      if (_connectionGeneration != generation) return;
+      await _webdavCredentials.save(saved);
+      if (_connectionGeneration != generation) {
+        if (previous != null) {
+          await _webdavCredentials.save(previous);
+        } else {
+          await _webdavCredentials.delete();
+        }
+        return;
+      }
+      if (!_mutate((s) {
+        final changed = s.link.storageIdentity != provider.identity;
+        s.link = CloudWebDav(
+          name: name,
+          endpoint: configuration.baseUri.toString(),
+          accountScope: provider.identity.accountScope,
+        );
+        if (changed) {
+          s.remote = [];
+          s.remoteAnniversaries = [];
+          s.backupJob = null;
+        }
+      })) {
+        if (previous == null) {
+          await _webdavCredentials.delete();
+        } else {
+          await _webdavCredentials.save(previous);
+        }
+        return;
+      }
+      previewLoads.clear();
+      originalLoads.clear();
+      await _preferences?.remove('backupRequestedFor');
+      _loadStorageStatus();
+      storageHealthLabel = 'HTTPS、读写及防覆盖检查通过';
+      _setBanner('NAS 已连接。记录仍在本机，确认后才会备份；尚未完成独立恢复验证。');
+      await refreshRemote();
+    } catch (error) {
+      show(error);
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
   }
 
   Future<void> refreshRemote() async {
     final link = session.link;
     final owner = session.identity;
-    if (_refreshing || archiveRecoveryMessage != null || link is! CloudVerified || owner == null) return;
+    if (_refreshing || archiveRecoveryMessage != null || !link.isVerified || owner == null) {
+      return;
+    }
     _refreshing = true;
     final generation = _connectionGeneration;
     try {
       final client = await _client('life/v1/');
-      final remote = await FamilyReader.readArchive(client,
-          owner: owner, deviceID: session.deviceID, testBuild: session.testBuild);
+      final remote = await FamilyReader.readStorageArchive(
+        client,
+        owner: owner,
+        deviceID: session.deviceID,
+        testBuild: session.testBuild,
+      );
       if (_connectionGeneration != generation) return;
       _refreshing = false;
       if (session.link != link) return;
@@ -396,14 +599,16 @@ class AppModel extends ChangeNotifier {
     try {
       prefix = session.writerPrefix();
     } catch (_) {}
-    return job.bucket == session.link.bucket &&
-        job.region == session.link.region &&
+    final target = session.link.storageIdentity;
+    return target != null &&
+        job.storageIdentity.providerId == target.providerId &&
+        job.storageIdentity.endpoint == target.endpoint &&
         job.prefix == prefix &&
         job.testBuild == session.testBuild;
   }
 
   String get backupStatusTitle {
-    if (session.link is! CloudVerified) return '仅保存在这台手机';
+    if (!session.link.isVerified) return '仅保存在这台手机';
     final job = session.backupJob;
     if (job == null || !_backupMatchesScope(job)) return '尚未备份';
     switch (job.status) {
@@ -411,6 +616,8 @@ class AppModel extends ChangeNotifier {
         return '等待继续备份';
       case BackupJobStatus.uploading:
         return backupRunning ? '正在备份' : '备份已中断，可继续';
+      case BackupJobStatus.verifying:
+        return '正在校验远端副本';
       case BackupJobStatus.paused:
         return '备份已暂停';
       case BackupJobStatus.failed:
@@ -420,14 +627,16 @@ class AppModel extends ChangeNotifier {
           final plan = BackupPlan.manifest(session, now: now);
           if (!job.matchesLocalPlan(plan)) return '有新的内容待备份';
         } catch (_) {}
-        return '已备份';
+        return '已验证远端副本';
     }
   }
 
   String get backupStatusDetail {
-    if (session.link is! CloudVerified) return '占位或未连接时不会上传；仅本地记录以后也不会自动上传。';
+    if (!session.link.isVerified) return '仅保存在本机。可随时记录，连接存储并确认后再备份。';
     final job = session.backupJob;
-    if (job == null || !_backupMatchesScope(job)) return '新建的可备份记录会在应用打开时自动备份。';
+    if (job == null || !_backupMatchesScope(job)) {
+      return '手动确认后备份，默认仅 Wi-Fi；原片始终保留在本机。';
+    }
     return job.lastError ?? '原件已核验 ${job.completedCount} / ${job.totalCount}；本机记录始终保留。';
   }
 
@@ -441,71 +650,117 @@ class AppModel extends ChangeNotifier {
     if (archiveRecoveryMessage != null || !ready) return;
     refreshRemote();
     final status = session.backupJob?.status;
-    if (status == BackupJobStatus.queued || status == BackupJobStatus.uploading) {
-      backupNow();
+    final activeJob = session.backupJob;
+    if (_backupRequested ||
+        (activeJob != null &&
+            _backupMatchesScope(activeJob) &&
+            (status == BackupJobStatus.queued ||
+                status == BackupJobStatus.uploading ||
+                status == BackupJobStatus.verifying))) {
+      backupNow(includeLocalRecords: false);
     } else if (status != BackupJobStatus.paused && status != BackupJobStatus.failed) {
       _scheduleAutomaticBackup();
     }
   }
 
   void _scheduleAutomaticBackup() {
+    // v3.1 is manual-first. Saving/editing/connecting never grants upload consent.
     _automaticBackup?.cancel();
-    if (session.link is! CloudVerified) return;
-    final BackupManifestPlan plan;
-    try {
-      plan = BackupPlan.manifest(session, now: now);
-    } catch (_) {
-      return;
-    }
-    final job = session.backupJob;
-    if (job?.status == BackupJobStatus.paused || job?.status == BackupJobStatus.failed) return;
-    if (job != null &&
-        job.status == BackupJobStatus.completed &&
-        _backupMatchesScope(job) &&
-        job.matchesLocalPlan(plan)) {
-      return;
-    }
-    _automaticBackup = Timer(const Duration(milliseconds: 700), backupNow);
   }
 
   void pauseBackup() {
+    _backupRequested = false;
+    _preferences?.remove('backupRequestedFor');
     _automaticBackup?.cancel();
     _stopBackup = true;
     if (!backupRunning) _mutate((s) => s.backupJob?.pause());
     _setBanner(backupRunning ? '正在暂停，当前文件完成后停止。' : '备份已暂停。');
   }
 
-  Future<void> backupNow() async {
-    if (backupRunning || busy || archiveRecoveryMessage != null) return;
-    if (session.link is! CloudVerified) {
-      _setBanner('占位连接不会上传。请在填写密钥后再备份。', error: true);
+  Future<void> backupNow({bool includeLocalRecords = true}) async {
+    if (backupRunning || busy || restoring || archiveRecoveryMessage != null) {
       return;
     }
-    final snapshot = session.copy();
+    final approvedLink = session.link;
+    if (!approvedLink.isVerified) {
+      _setBanner('请先连接存储；记录仍仅保存在本机。', error: true);
+      return;
+    }
+    // Lock and bind consent before the first await. A slow network query cannot
+    // turn approval for destination A into permission to upload to destination B.
     final generation = _connectionGeneration;
-    _stopBackup = false;
     backupRunning = true;
+    _stopBackup = false;
     notifyListeners();
+    void checkScope() {
+      if (_connectionGeneration != generation || session.link != approvedLink || archiveRecoveryMessage != null) {
+        throw const CosFailure(ConnectionFailure.configuration);
+      }
+    }
+
     try {
+      if (includeLocalRecords &&
+          !_mutate((s) {
+            final eligibility = s.testBuild ? UploadEligibility.testOnly : UploadEligibility.eligible;
+            s.moments = [
+              for (final m in s.moments)
+                if (m.parent == s.identity && m.uploadEligibility == UploadEligibility.localOnly)
+                  LocalMoment.fromJson({...m.toJson(), 'uploadEligibility': eligibility.rawValue})
+                else
+                  m,
+            ];
+            s.anniversaries = [
+              for (final a in s.anniversaries)
+                if (a.owner == s.identity && a.uploadEligibility == UploadEligibility.localOnly)
+                  LocalAnniversary.fromJson({...a.toJson(), 'uploadEligibility': eligibility.rawValue})
+                else
+                  a,
+            ];
+          })) {
+        return;
+      }
+      final pendingStore = ArchiveStore('$directory/pending-upload.json');
+      final AppSession snapshot;
+      if (includeLocalRecords) {
+        snapshot = session.copy();
+        pendingStore.save(PersistedArchive.fromSession(snapshot));
+      } else {
+        final pending = pendingStore.load()?.session();
+        if (pending == null || pending.link != approvedLink || pending.deviceID != session.deviceID) {
+          throw const ContractError('backup', '等待上传的确认已失效，请重新检查目标并确认。');
+        }
+        snapshot = pending;
+      }
+      await _preferences?.setString('backupRequestedFor', jsonEncode(approvedLink.storageIdentity!.toJson()));
+      _backupRequested = true;
+      final networks = await _connectivityCheck();
+      checkScope();
+      if (networks.contains(ConnectivityResult.none) ||
+          (wifiOnlyBackup &&
+              !networks.contains(ConnectivityResult.wifi) &&
+              !networks.contains(ConnectivityResult.ethernet))) {
+        storageHealthLabel = '等待可用网络';
+        _setBanner(wifiOnlyBackup ? '等待 Wi-Fi，备份请求已保留；可以继续本地记录。' : '等待网络，备份请求已保留。');
+        return;
+      }
       final prefix = snapshot.writerPrefix();
       final client = await _client(prefix);
-      final existing = snapshot.backupJob;
+      checkScope();
+      final existing = session.backupJob;
       final BackupJob job;
       if (existing != null &&
           existing.status != BackupJobStatus.completed &&
           existing.prefix == prefix &&
-          existing.bucket == snapshot.link.bucket &&
-          existing.region == snapshot.link.region &&
-          existing.testBuild == snapshot.testBuild) {
+          existing.storageIdentity == client.identity &&
+          existing.testBuild == snapshot.testBuild &&
+          existing.matchesLocalPlan(BackupPlan.manifest(snapshot, now: now))) {
         job = existing.copy()..resume();
       } else {
-        job = await BackupQueue.prepare(client, snapshot, now: now);
+        job = await BackupQueue.prepareWithProvider(client, snapshot, now: now);
       }
       void checkpoint(BackupJob updated) {
-        if (_connectionGeneration != generation ||
-            session.link != snapshot.link ||
-            session.deviceID != snapshot.deviceID ||
-            archiveRecoveryMessage != null) {
+        checkScope();
+        if (session.deviceID != snapshot.deviceID) {
           throw const CosFailure(ConnectionFailure.configuration);
         }
         final latest = session.copy()..backupJob = updated;
@@ -516,30 +771,93 @@ class AppModel extends ChangeNotifier {
 
       checkpoint(job.copy());
       final root = Directory(directory).absolute.path;
-      await BackupQueue.advance(client, snapshot, job,
-          resolve: (relative) {
-            final path = File('$root/$relative').absolute.path;
-            if (relative.split('/').contains('..') || !path.startsWith(root)) {
-              throw const CosFailure(ConnectionFailure.contentMismatch);
-            }
-            return path;
-          },
-          persist: checkpoint,
-          shouldPause: () => _stopBackup);
-      backupRunning = false;
+      await BackupQueue.advanceWithProvider(
+        client,
+        snapshot,
+        job,
+        resolve: (relative) {
+          final path = File('$root/$relative').absolute.path;
+          if (relative.split('/').contains('..') || !path.startsWith('$root/')) {
+            throw const CosFailure(ConnectionFailure.contentMismatch);
+          }
+          return path;
+        },
+        persist: checkpoint,
+        shouldPause: () => _stopBackup,
+      );
+      checkScope();
       final completed = job.status == BackupJobStatus.completed;
-      _setBanner(completed ? '已备份到云端，本机记录仍然保留。' : '备份已暂停，可稍后继续。');
-      if (completed) _scheduleAutomaticBackup();
+      if (completed) {
+        await _preferences?.remove('backupRequestedFor');
+        _backupRequested = false;
+        lastSuccessfulBackup = DateTime.now();
+        await _preferences?.setInt(_successKey, lastSuccessfulBackup!.millisecondsSinceEpoch);
+        storageHealthLabel = '已验证远端副本';
+      }
+      _setBanner(completed ? '已验证远端副本；原片保留，尚不等于独立恢复验证。' : '备份已暂停，可稍后继续。');
     } catch (error) {
-      backupRunning = false;
+      storageHealthLabel = '备份未完成，可重试';
       show(error);
+    } finally {
+      backupRunning = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> restoreToIsolatedCopy() async {
+    if (busy || backupRunning || restoring || !session.link.isVerified || session.identity == null) {
+      return;
+    }
+    restoring = true;
+    restoreError = null;
+    final link = session.link;
+    final generation = _connectionGeneration;
+    notifyListeners();
+    try {
+      final provider = await _client('life/v1/');
+      final chains = <RestoreChain>[];
+      for (final parent in ParentIdentity.values) {
+        final keys = await provider.list(prefix: parent.prefix);
+        for (final prefix in V1Layout.chainsUnder(root: parent.prefix, keys: keys)) {
+          chains.add(RestoreChain(parent: parent, prefix: prefix));
+        }
+      }
+      if (session.testBuild) {
+        final testPrefix = session.writerPrefix();
+        if ((await provider.list(prefix: '${testPrefix}commits/')).isNotEmpty) {
+          chains.add(RestoreChain(parent: session.identity!, prefix: testPrefix));
+        }
+      }
+      final parent = Directory('$directory/restores');
+      await parent.create(recursive: true);
+      final result = await ArchiveRestore.restore(
+        provider,
+        destination: '${parent.path}/${newUuid()}',
+        owner: session.identity!,
+        deviceID: newUuid(),
+        chains: chains,
+        testBuild: session.testBuild,
+      );
+      if (_connectionGeneration != generation || session.link != link) {
+        throw const CosFailure(ConnectionFailure.configuration);
+      }
+      lastRestoreResult = result;
+      _setBanner('已在本机建立隔离恢复副本并校验全部原件；当前档案未替换。');
+    } catch (error) {
+      restoreError = '完整恢复尚未完成，当前档案及原件保持原样。';
+      show(error);
+    } finally {
+      restoring = false;
+      notifyListeners();
     }
   }
 
   // Media files.
 
   String? filePath(String relative) {
-    if (relative.isEmpty || relative.contains('..') || relative.startsWith('/')) return null;
+    if (relative.isEmpty || relative.contains('..') || relative.startsWith('/')) {
+      return null;
+    }
     return '$directory/$relative';
   }
 
@@ -554,11 +872,6 @@ class AppModel extends ChangeNotifier {
   Future<void> loadPreview(RemotePreview reference, {bool retry = false}) async {
     if (!retry && previewLoads.containsKey(reference.id)) return;
     final link = session.link;
-    if (link is! CloudVerified) {
-      previewLoads[reference.id] = const PreviewFailed('请先连接云存储，再读取照片。');
-      notifyListeners();
-      return;
-    }
     previewLoads[reference.id] = const PreviewLoading();
     scheduleMicrotask(notifyListeners);
     try {
@@ -573,6 +886,9 @@ class AppModel extends ChangeNotifier {
         } catch (_) {}
       }
       if (!valid) {
+        if (!link.isVerified) {
+          throw const CosFailure(ConnectionFailure.configuration);
+        }
         final client = await _client(reference.parent.prefix);
         final head = await client.head(reference.objectKey);
         if (head == null || head.byteCount != reference.byteCount) {
@@ -598,7 +914,9 @@ class AppModel extends ChangeNotifier {
     for (final resource in photo.localResources) {
       if (resource.role == 'preview') continue;
       final path = filePath(resource.relativePath);
-      if (path == null || !await File(path).exists()) throw const CosFailure(ConnectionFailure.notFound);
+      if (path == null || !await File(path).exists()) {
+        throw const CosFailure(ConnectionFailure.notFound);
+      }
       result[resource.role] = path;
     }
     final full = photo.fullSizePath;
@@ -619,7 +937,10 @@ class AppModel extends ChangeNotifier {
       final path = '$directory/$relative';
       final file = File(path);
       if (await file.exists()) {
-        final digest = await Digest.sha256File(path, maximumBytes: resource.byteCount).catchError((_) => (hash: '', byteCount: -1));
+        final digest = await Digest.sha256File(
+          path,
+          maximumBytes: resource.byteCount,
+        ).catchError((_) => (hash: '', byteCount: -1));
         if (digest.hash == resource.sha256 && digest.byteCount == resource.byteCount) {
           result[resource.role] = path;
           continue;
@@ -627,16 +948,25 @@ class AppModel extends ChangeNotifier {
         // A corrupt cache is disposable; originals in media/ are never removed.
         await file.delete();
       }
-      if (link is! CloudVerified) throw const CosFailure(ConnectionFailure.configuration);
+      if (!link.isVerified) {
+        throw const CosFailure(ConnectionFailure.configuration);
+      }
       final connectivity = await Connectivity().checkConnectivity();
-      final metered = connectivity.contains(ConnectivityResult.mobile) && !connectivity.contains(ConnectivityResult.wifi);
-      if (metered && !allowCellularOriginals && !allowCellularOnce) throw const CellularDownloadRequired();
+      final metered =
+          connectivity.contains(ConnectivityResult.mobile) && !connectivity.contains(ConnectivityResult.wifi);
+      if (metered && !allowCellularOriginals && !allowCellularOnce) {
+        throw const CellularDownloadRequired();
+      }
       originalLoads[resource.id] = const PreviewLoading();
       notifyListeners();
       try {
         final client = await _client(resource.parent.prefix);
         await client.getFile(
-            key: resource.objectKey, destination: path, byteCount: resource.byteCount, sha256: resource.sha256);
+          key: resource.objectKey,
+          destination: path,
+          byteCount: resource.byteCount,
+          sha256: resource.sha256,
+        );
         if (_connectionGeneration != generation || session.link != link) {
           throw const CosFailure(ConnectionFailure.configuration);
         }
@@ -659,6 +989,14 @@ class AppModel extends ChangeNotifier {
     banner = switch (error) {
       CosFailure(:final failure) => failure.message,
       ContractError(:final message) => message,
+      StorageProviderFailure(:final kind) => switch (kind) {
+        StorageProviderFailureKind.permission => '存储认证或权限不足，请更新连接；原片保留在本机。',
+        StorageProviderFailureKind.conflict => '目标已有不同内容，已停止写入，不会覆盖。',
+        StorageProviderFailureKind.integrity => '远端副本校验失败，尚未备份成功。',
+        StorageProviderFailureKind.unsafeConditionalWrites => '存储不能可靠阻止覆盖，已停止备份。',
+        StorageProviderFailureKind.configuration => '请检查 HTTPS 专用目录和连接配置。',
+        _ => '存储暂时不可用，原片在本机，稍后可重试。',
+      },
       _ => '暂时无法完成，请稍后再试。',
     };
     notifyListeners();

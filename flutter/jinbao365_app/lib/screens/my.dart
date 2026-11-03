@@ -5,8 +5,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../app_model.dart';
 import '../main.dart';
 import '../theme.dart';
+import 'anniversaries.dart';
 import 'cloud_connect.dart';
 import 'shell.dart';
+import 'storage_center.dart';
 
 /// Port of MyView.swift and SettingsView.swift.
 class MyScreen extends StatelessWidget {
@@ -26,10 +28,10 @@ class MyScreen extends StatelessWidget {
             Row(children: [
               const BrandMark(size: 58),
               const SizedBox(width: 14),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Text('共同的生活档案', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 if (identity != null) ...[const SizedBox(height: 6), ParentBadge(identity)],
-              ]),
+              ])),
             ]),
             const SizedBox(height: 18),
             Row(children: [
@@ -46,10 +48,16 @@ class MyScreen extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: Column(children: [
             FeatureRow(
-                title: '家庭时光',
-                subtitle: '爸爸和妈妈一起留下的记录',
-                icon: Icons.photo_library_outlined,
-                onTap: () => model.selectTab(ShellTab.timeline)),
+                title: '家庭空间',
+                subtitle: '查看家庭时光与加入状态',
+                icon: Icons.family_restroom,
+                onTap: () => _push(context, const FamilySpacePage())),
+            const Divider(),
+            FeatureRow(
+                title: '纪念日',
+                subtitle: '重要的日子一直保留',
+                icon: Icons.favorite_border,
+                onTap: () => _push(context, const AnniversariesScreen())),
             const Divider(),
             FeatureRow(
                 title: '未完成的记录',
@@ -58,10 +66,10 @@ class MyScreen extends StatelessWidget {
                 onTap: () => _push(context, const DraftsPage())),
             const Divider(),
             FeatureRow(
-                title: '云备份',
-                subtitle: model.backupStatusTitle,
+                title: '数据与存储',
+                subtitle: model.session.link.isVerified ? model.backupStatusTitle : '仅保存在本机，可稍后连接存储',
                 icon: Icons.cloud_outlined,
-                onTap: () => _push(context, const CloudPage(title: '云备份'))),
+                onTap: () => _push(context, const StorageCenterPage())),
             const Divider(),
             FeatureRow(
                 title: '设置', subtitle: '连接、存储与应用信息', icon: Icons.settings_outlined, onTap: () => _push(context, const SettingsPage())),
@@ -84,6 +92,63 @@ class MyScreen extends StatelessWidget {
 
 void _push(BuildContext context, Widget page) =>
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
+
+class FamilySpacePage extends StatelessWidget {
+  const FamilySpacePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final model = AppScope.of(context);
+    return Scaffold(
+      appBar: AppBar(title: const Text('家庭空间')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          BrandCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '家庭时光',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                const Text('已有爸爸、妈妈的记录继续保留。当前没有通过扫码建立的新家庭成员授权。'),
+                const SizedBox(height: 16),
+                GoldButton(
+                  title: '查看时光',
+                  onPressed: () {
+                    model.selectTab(ShellTab.timeline);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          BrandCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '家庭邀请 · 实验阶段',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                const Text('可信授权服务尚未就绪，扫码加入和成员权限管理暂未开放。'),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () => showFamilyJoinAvailability(context),
+                  child: const Text('加入家庭'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class CloudPage extends StatelessWidget {
   final String title;
@@ -193,12 +258,12 @@ class SettingsPage extends StatelessWidget {
           const ListTile(
               subtitle: Text('署名已确认，用来区分爸爸和妈妈的记录。', style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary))),
         ]),
-        _section('云备份', [
+        _section('数据与存储', [
           ListTile(
             title: Text(model.backupStatusTitle),
             subtitle: Text(model.backupStatusDetail, style: const TextStyle(fontSize: 12)),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => _push(context, const CloudPage(title: '云备份')),
+            onTap: () => _push(context, const StorageCenterPage()),
           ),
           ListTile(
             leading: const Icon(Icons.link),
