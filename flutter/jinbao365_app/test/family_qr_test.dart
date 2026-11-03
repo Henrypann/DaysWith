@@ -42,7 +42,7 @@ void main() {
         ),
       ),
     );
-    expect(tester.widget<QrImageView>(find.byType(QrImageView)).data, _url);
+    await _expectEncodedInvitation(tester, _url);
     expect(find.text(_url), findsNothing);
 
     await tester.pumpWidget(
@@ -73,12 +73,26 @@ void main() {
     expect(cameraBuilds, greaterThan(0));
     expect(find.text('合成相机预览'), findsOneWidget);
 
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    await tester.pump();
+    // Flutter only accepts resumed → inactive → hidden → paused, then the
+    // reverse. Leaving still stops the camera; coming back does not start it.
+    for (final state in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+      await tester.pump();
+    }
     expect(find.text('合成相机预览'), findsNothing);
     final buildsBeforeResume = cameraBuilds;
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pump();
+    for (final state in [
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+      await tester.pump();
+    }
     expect(cameraBuilds, buildsBeforeResume);
     expect(find.byKey(const ValueKey('family-scan-camera')), findsOneWidget);
   });
@@ -184,4 +198,42 @@ void main() {
     expect(returns, 1);
     expect(tester.takeException(), isNull);
   });
+}
+
+/// qr_flutter 4.1.0 keeps the payload in a private field. Compare the painted
+/// code with one built from the validated URL through the public painter API.
+Future<void> _expectEncodedInvitation(WidgetTester tester, String data) async {
+  final paint = tester.widget<CustomPaint>(
+    find.descendant(of: find.byType(QrImageView), matching: find.byType(CustomPaint)),
+  );
+  final painter = paint.painter! as QrPainter;
+  const size = 180.0;
+  final compared = await tester.runAsync(() async {
+    Future<List<int>> bytes(QrPainter value) async {
+      final image = await value.toImageData(size);
+      return image!.buffer.asUint8List();
+    }
+    final actual = await bytes(painter);
+    final expected = await bytes(QrPainter(
+      data: data,
+      version: painter.version,
+      errorCorrectionLevel: painter.errorCorrectionLevel,
+      gapless: painter.gapless,
+      eyeStyle: painter.eyeStyle,
+      dataModuleStyle: painter.dataModuleStyle,
+    ));
+    final mutated = data.replaceRange(data.length - 1, data.length, data.endsWith('A') ? 'B' : 'A');
+    final different = await bytes(QrPainter(
+      data: mutated,
+      version: painter.version,
+      errorCorrectionLevel: painter.errorCorrectionLevel,
+      gapless: painter.gapless,
+      eyeStyle: painter.eyeStyle,
+      dataModuleStyle: painter.dataModuleStyle,
+    ));
+    return (actual, expected, different);
+  });
+  expect(compared, isNotNull);
+  expect(compared!.$1, compared.$2);
+  expect(compared.$1, isNot(equals(compared.$3)));
 }

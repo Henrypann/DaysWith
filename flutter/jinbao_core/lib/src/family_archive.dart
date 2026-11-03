@@ -362,8 +362,7 @@ class FamilyArchiveManifest {
 /// An equal revision with unequal bytes is a conflict requiring review; it never
 /// silently picks a device or overwrites someone else's record.
 List<FamilyArchiveRecord> mergeFamilyArchiveRecords(
-  List<FamilyArchiveManifest> manifests, {required String familyID},
-) {
+  List<FamilyArchiveManifest> manifests, {required String familyID}) {
   final expected = familyStableID(familyID);
   validateFamilyArchiveMediaHistory(manifests, familyID: expected);
   final winners = <String, (FamilyArchiveRecord, String)>{};
@@ -394,8 +393,7 @@ List<FamilyArchiveRecord> mergeFamilyArchiveRecords(
 /// grants permission to make an old media ID refer to different bytes.
 /// Identical UUIDs belonging to different members remain independent.
 void validateFamilyArchiveMediaHistory(
-  List<FamilyArchiveManifest> manifests, {required String familyID},
-) {
+  List<FamilyArchiveManifest> manifests, {required String familyID}) {
   final expected = familyStableID(familyID);
   final fingerprints = <String, String>{};
   final objectSizes = <String, int>{};

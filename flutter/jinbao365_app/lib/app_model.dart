@@ -155,7 +155,7 @@ class AppModel extends ChangeNotifier {
   Future<void> setWifiOnlyBackup(bool value) async {
     await _preferences?.setBool('wifiOnlyBackup', value);
     wifiOnlyBackup = value;
-    notifyListeners();
+    _notify();
   }
 
   String get _successKey =>
@@ -178,6 +178,26 @@ class AppModel extends ChangeNotifier {
   Timer? _automaticBackup;
   SharedPreferences? _preferences;
   bool _legacyUpgradePending = false;
+  bool _disposed = false;
+
+  /// Listeners are only for a live model. Pause/restart futures (preference
+  /// removal, remote refresh) can complete after [dispose].
+  @override
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _connectionGeneration++;
+    _uploadIntentGeneration++;
+    _stopBackup = true;
+    _refreshing = false;
+    _automaticBackup?.cancel();
+    super.dispose();
+  }
+
+  void _notify() {
+    if (_disposed) return;
+    notifyListeners();
+  }
 
   static int get now => DateTime.now().millisecondsSinceEpoch;
 
@@ -217,7 +237,7 @@ class AppModel extends ChangeNotifier {
       }
     }
     ready = true;
-    notifyListeners();
+    _notify();
     activate();
   }
 
@@ -253,19 +273,19 @@ class AppModel extends ChangeNotifier {
       bucket = restored.link.bucket ?? bucket;
       region = restored.link.region ?? region;
       archiveRecoveryMessage = null;
-      notifyListeners();
+      _notify();
       activate();
     } catch (error) {
       show(error);
     } finally {
       busy = false;
-      notifyListeners();
+      _notify();
     }
   }
 
   void selectTab(ShellTab value) {
     tab = value;
-    notifyListeners();
+    _notify();
   }
 
   void confirm(ParentIdentity parent) => _mutate((s) => s.confirmIdentity(parent));
@@ -310,7 +330,7 @@ class AppModel extends ChangeNotifier {
     final generation = _connectionGeneration;
     busy = true;
     banner = null;
-    notifyListeners();
+    _notify();
     try {
       final client = CosClient(
         configuration: configuration,
@@ -370,7 +390,7 @@ class AppModel extends ChangeNotifier {
       show(error);
     } finally {
       busy = false;
-      notifyListeners();
+      _notify();
     }
   }
 
@@ -420,7 +440,7 @@ class AppModel extends ChangeNotifier {
     }
     bucket = session.link.bucket ?? bucket;
     region = session.link.region ?? region;
-    notifyListeners();
+    _notify();
   }
 
   // Drafts and records.
@@ -455,7 +475,7 @@ class AppModel extends ChangeNotifier {
   bool commitDraft() {
     if (!_mutate((s) => s.commitDraft(now: now))) return false;
     tab = ShellTab.timeline;
-    notifyListeners();
+    _notify();
     _scheduleAutomaticBackup();
     return true;
   }
@@ -486,7 +506,7 @@ class AppModel extends ChangeNotifier {
 
   Future<void> setAllowCellularOriginals(bool allowed) async {
     allowCellularOriginals = allowed;
-    notifyListeners();
+    _notify();
     await _preferences?.setBool('allowCellularOriginals', allowed);
   }
 
@@ -542,7 +562,7 @@ class AppModel extends ChangeNotifier {
     final generation = ++_connectionGeneration;
     _refreshing = false;
     busy = true;
-    notifyListeners();
+    _notify();
     try {
       final configuration = WebDavConfiguration(baseUrl: url);
       final saved = WebDavSavedConnection(
@@ -599,27 +619,28 @@ class AppModel extends ChangeNotifier {
       show(error);
     } finally {
       busy = false;
-      notifyListeners();
+      _notify();
     }
   }
 
   Future<void> refreshRemote() async {
     final link = session.link;
     final owner = session.identity;
-    if (_refreshing || archiveRecoveryMessage != null || !link.isVerified || owner == null) {
+    if (_disposed || _refreshing || archiveRecoveryMessage != null || !link.isVerified || owner == null) {
       return;
     }
     _refreshing = true;
     final generation = _connectionGeneration;
     try {
       final client = await _client('life/v1/');
+      if (_disposed || _connectionGeneration != generation) return;
       final remote = await FamilyReader.readStorageArchive(
         client,
         owner: owner,
         deviceID: session.deviceID,
         testBuild: session.testBuild,
       );
-      if (_connectionGeneration != generation) return;
+      if (_disposed || _connectionGeneration != generation) return;
       _refreshing = false;
       if (session.link != link) return;
       _mutate((s) {
@@ -627,7 +648,7 @@ class AppModel extends ChangeNotifier {
         s.remoteAnniversaries = remote.anniversaries;
       });
     } catch (error) {
-      if (_connectionGeneration == generation) {
+      if (!_disposed && _connectionGeneration == generation) {
         _refreshing = false;
         show(error);
       }
@@ -757,7 +778,7 @@ class AppModel extends ChangeNotifier {
     final intentGeneration = ++_uploadIntentGeneration;
     backupRunning = true;
     _stopBackup = false;
-    notifyListeners();
+    _notify();
     void checkScope({bool allowPaused = false}) {
       if (_connectionGeneration != generation || session.link != approvedLink || archiveRecoveryMessage != null) {
         throw const CosFailure(ConnectionFailure.configuration);
@@ -840,7 +861,7 @@ class AppModel extends ChangeNotifier {
         final latest = session.copy()..backupJob = updated;
         _store.save(PersistedArchive.fromSession(latest));
         session = latest;
-        notifyListeners();
+        _notify();
       }
 
       checkpoint(job.copy());
@@ -884,7 +905,7 @@ class AppModel extends ChangeNotifier {
       show(error);
     } finally {
       backupRunning = false;
-      notifyListeners();
+      _notify();
     }
   }
 
@@ -896,7 +917,7 @@ class AppModel extends ChangeNotifier {
     restoreError = null;
     final link = session.link;
     final generation = _connectionGeneration;
-    notifyListeners();
+    _notify();
     try {
       final provider = await _client('life/v1/');
       final chains = <RestoreChain>[];
@@ -932,7 +953,7 @@ class AppModel extends ChangeNotifier {
       show(error);
     } finally {
       restoring = false;
-      notifyListeners();
+      _notify();
     }
   }
 
@@ -957,7 +978,7 @@ class AppModel extends ChangeNotifier {
     if (!retry && previewLoads.containsKey(reference.id)) return;
     final link = session.link;
     previewLoads[reference.id] = const PreviewLoading();
-    scheduleMicrotask(notifyListeners);
+    scheduleMicrotask(_notify);
     try {
       reference.validate();
       final relative = 'preview-cache/${reference.parent.folder}-${reference.sha256}';
@@ -989,7 +1010,7 @@ class AppModel extends ChangeNotifier {
       if (session.link != link) return;
       previewLoads[reference.id] = const PreviewFailed('照片暂时无法读取，请重试。');
     }
-    notifyListeners();
+    _notify();
   }
 
   /// Local or cached-and-verified originals for viewing, keyed by role.
@@ -1042,7 +1063,7 @@ class AppModel extends ChangeNotifier {
         throw const CellularDownloadRequired();
       }
       originalLoads[resource.id] = const PreviewLoading();
-      notifyListeners();
+      _notify();
       try {
         final client = await _client(resource.parent.prefix);
         await client.getFile(
@@ -1058,17 +1079,18 @@ class AppModel extends ChangeNotifier {
         result[resource.role] = path;
       } catch (error) {
         originalLoads[resource.id] = const PreviewFailed('原件暂时无法读取，请重试。');
-        notifyListeners();
+        _notify();
         rethrow;
       }
     }
-    notifyListeners();
+    _notify();
     return result;
   }
 
   // Messages.
 
   void show(Object error) {
+    if (_disposed) return;
     bannerIsError = true;
     banner = switch (error) {
       CosFailure(:final failure) => failure.message,
@@ -1083,28 +1105,30 @@ class AppModel extends ChangeNotifier {
       },
       _ => '暂时无法完成，请稍后再试。',
     };
-    notifyListeners();
+    _notify();
   }
 
   void clearBanner() {
+    if (_disposed) return;
     banner = null;
-    notifyListeners();
+    _notify();
   }
 
   void _setBanner(String text, {bool error = false}) {
+    if (_disposed) return;
     banner = text;
     bannerIsError = error;
-    notifyListeners();
+    _notify();
   }
 
   bool _mutate(void Function(AppSession session) body, {bool quiet = false}) {
-    if (archiveRecoveryMessage != null) return false;
+    if (_disposed || archiveRecoveryMessage != null) return false;
     final copy = session.copy();
     try {
       body(copy);
       _store.save(PersistedArchive.fromSession(copy));
       session = copy;
-      if (!quiet) notifyListeners();
+      if (!quiet) _notify();
       return true;
     } catch (error) {
       show(error);
