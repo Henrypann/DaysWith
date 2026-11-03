@@ -1,8 +1,6 @@
 allprojects {
     repositories {
-        // Aliyun mirrors first: the original hosts stall from mainland China.
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/central")
+        // Official repositories for the managed cloud toolchain.
         google()
         mavenCentral()
     }

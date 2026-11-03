@@ -38,6 +38,10 @@ class CellularDownloadRequired implements Exception {
   const CellularDownloadRequired();
 }
 
+class _BackupPaused implements Exception {
+  const _BackupPaused();
+}
+
 /// Port of ios-app/Jinbao365/AppModel.swift. Every change goes through [_mutate], which
 /// saves the archive before the new state becomes visible.
 class AppModel extends ChangeNotifier {
@@ -48,12 +52,20 @@ class AppModel extends ChangeNotifier {
   final CredentialStore _credentials;
   final Future<List<ConnectivityResult>> Function() _connectivityCheck;
   final StorageProvider Function(CloudLink link, String prefix)? _providerFactory;
+  final Future<void> Function(String? target)? _uploadIntentPersistence;
+  /// Supplied by a host with a verified login session. Never derives authority
+  /// from the Dad/Mom identity, scanned invitation, or a stored NAS password.
+  final FamilyGatewayClient? familyGatewayClient;
   AppModel({
     CredentialStore? credentials,
     WebDavCredentialStore? webdavCredentials,
     Future<List<ConnectivityResult>> Function()? connectivityCheck,
-    this._providerFactory,
+    StorageProvider Function(CloudLink link, String prefix)? providerFactory,
+    Future<void> Function(String? target)? uploadIntentPersistence,
+    this.familyGatewayClient,
   }) : _credentials = credentials ?? CredentialStore(),
+       _providerFactory = providerFactory,
+       _uploadIntentPersistence = uploadIntentPersistence,
        _webdavCredentials = webdavCredentials ?? WebDavCredentialStore(),
        _connectivityCheck = connectivityCheck ?? Connectivity().checkConnectivity;
 
@@ -87,6 +99,28 @@ class AppModel extends ChangeNotifier {
   bool allowCellularOriginals = false;
   bool wifiOnlyBackup = true;
   bool _backupRequested = false;
+  int _uploadIntentGeneration = 0;
+  Future<void> _intentWriteTail = Future<void>.value();
+
+  // Serialize consent writes. In particular a pause must remove a consent write
+  // already in flight, rather than racing it and leaving an upload on restart.
+  Future<void> _writeUploadIntent(String? target) {
+    final write = _intentWriteTail.then((_) async {
+      await _uploadIntentPersistence?.call(target);
+      if (target == null) {
+        final saved = await _preferences?.remove('backupRequestedFor');
+        if (saved == false) throw const ContractError('backup', '备份确认暂时无法保存，请重试。');
+      } else {
+        final saved = await _preferences?.setString('backupRequestedFor', target);
+        if (saved == false) throw const ContractError('backup', '备份确认暂时无法保存，请重试。');
+      }
+    });
+    _intentWriteTail = write.catchError((Object _) {});
+    return write;
+  }
+
+  @visibleForTesting
+  Future<void> get pendingUploadIntentWrite => _intentWriteTail;
   bool restoring = false;
   ArchiveRestoreResult? lastRestoreResult;
   String? restoreError;
@@ -99,10 +133,17 @@ class AppModel extends ChangeNotifier {
     CloudVerified(:final bucket) => '腾讯云 COS · $bucket',
     _ => '仅保存在本机',
   };
-  int get pendingStorageCount => _backupRequested || session.backupJob?.status == BackupJobStatus.queued
-      ? (session.backupJob?.totalCount ?? backupMediaCount)
-      : 0;
-  int get failedStorageCount => session.backupJob?.status == BackupJobStatus.failed ? 1 : 0;
+  int get pendingStorageCount {
+    if (session.uploadPaused) return 0;
+    final job = session.backupJob;
+    final matching = job != null && _backupMatchesScope(job);
+    if (_backupRequested) return matching ? job.totalCount : backupMediaCount;
+    return matching && job.status == BackupJobStatus.queued ? job.totalCount : 0;
+  }
+  int get failedStorageCount {
+    final job = session.backupJob;
+    return job != null && _backupMatchesScope(job) && job.status == BackupJobStatus.failed ? 1 : 0;
+  }
   int get backupMediaCount => session.moments.where((m) => m.parent == session.identity).expand((m) => m.assets).length;
   int get backupByteCount => session.moments
       .where((m) => m.parent == session.identity)
@@ -123,6 +164,7 @@ class AppModel extends ChangeNotifier {
     final timestamp = _preferences?.getInt(_successKey);
     lastSuccessfulBackup = timestamp == null ? null : DateTime.fromMillisecondsSinceEpoch(timestamp);
     _backupRequested =
+        !session.uploadPaused &&
         session.link.storageIdentity != null &&
         _preferences?.getString('backupRequestedFor') == jsonEncode(session.link.storageIdentity!.toJson());
   }
@@ -316,7 +358,7 @@ class AppModel extends ChangeNotifier {
       previewLoads.clear();
       originalLoads.clear();
       storageHealthLabel = '读取连接正常；写入按备份任务校验';
-      await _preferences?.remove('backupRequestedFor');
+      await _writeUploadIntent(null);
       _loadStorageStatus();
       _setBanner('云存储已连接，历史本地记录需手动确认备份。');
       _refreshing = false;
@@ -358,7 +400,7 @@ class AppModel extends ChangeNotifier {
       } else {
         await _credentials.delete();
       }
-      await _preferences?.remove('backupRequestedFor');
+      await _writeUploadIntent(null);
       _backupRequested = false;
       lastSuccessfulBackup = null;
       storageHealthLabel = '未连接';
@@ -548,7 +590,7 @@ class AppModel extends ChangeNotifier {
       }
       previewLoads.clear();
       originalLoads.clear();
-      await _preferences?.remove('backupRequestedFor');
+      await _writeUploadIntent(null);
       _loadStorageStatus();
       storageHealthLabel = 'HTTPS、读写及防覆盖检查通过';
       _setBanner('NAS 已连接。记录仍在本机，确认后才会备份；尚未完成独立恢复验证。');
@@ -601,14 +643,19 @@ class AppModel extends ChangeNotifier {
     } catch (_) {}
     final target = session.link.storageIdentity;
     return target != null &&
-        job.storageIdentity.providerId == target.providerId &&
-        job.storageIdentity.endpoint == target.endpoint &&
+        job.storageIdentity == StorageIdentity(
+          providerId: target.providerId,
+          endpoint: target.endpoint,
+          prefix: prefix ?? '',
+          accountScope: target.accountScope,
+        ) &&
         job.prefix == prefix &&
         job.testBuild == session.testBuild;
   }
 
   String get backupStatusTitle {
     if (!session.link.isVerified) return '仅保存在这台手机';
+    if (session.uploadPaused) return '备份已暂停';
     final job = session.backupJob;
     if (job == null || !_backupMatchesScope(job)) return '尚未备份';
     switch (job.status) {
@@ -623,6 +670,10 @@ class AppModel extends ChangeNotifier {
       case BackupJobStatus.failed:
         return '备份未完成';
       case BackupJobStatus.completed:
+        if (session.moments.any((m) => m.parent == session.identity && m.uploadEligibility == UploadEligibility.localOnly) ||
+            session.anniversaries.any((a) => a.owner == session.identity && a.uploadEligibility == UploadEligibility.localOnly)) {
+          return '有新的内容待备份';
+        }
         try {
           final plan = BackupPlan.manifest(session, now: now);
           if (!job.matchesLocalPlan(plan)) return '有新的内容待备份';
@@ -633,6 +684,7 @@ class AppModel extends ChangeNotifier {
 
   String get backupStatusDetail {
     if (!session.link.isVerified) return '仅保存在本机。可随时记录，连接存储并确认后再备份。';
+    if (session.uploadPaused) return '原件仍在本机，重新确认备份后才会继续。';
     final job = session.backupJob;
     if (job == null || !_backupMatchesScope(job)) {
       return '手动确认后备份，默认仅 Wi-Fi；原片始终保留在本机。';
@@ -649,6 +701,7 @@ class AppModel extends ChangeNotifier {
   void activate() {
     if (archiveRecoveryMessage != null || !ready) return;
     refreshRemote();
+    if (session.uploadPaused) return;
     final status = session.backupJob?.status;
     final activeJob = session.backupJob;
     if (_backupRequested ||
@@ -669,11 +722,22 @@ class AppModel extends ChangeNotifier {
   }
 
   void pauseBackup() {
+    _uploadIntentGeneration++;
     _backupRequested = false;
-    _preferences?.remove('backupRequestedFor');
+    unawaited(_writeUploadIntent(null).catchError((Object error) {
+      show(error);
+    }));
     _automaticBackup?.cancel();
     _stopBackup = true;
-    if (!backupRunning) _mutate((s) => s.backupJob?.pause());
+    final saved = _mutate((s) {
+      s.uploadPaused = true;
+      s.backupJob?.pause();
+    });
+    if (!saved) {
+      session.uploadPaused = true;
+      _setBanner('当前传输正在停止，但暂停状态未能保存。请检查本机存储后重试。', error: true);
+      return;
+    }
     _setBanner(backupRunning ? '正在暂停，当前文件完成后停止。' : '备份已暂停。');
   }
 
@@ -681,6 +745,7 @@ class AppModel extends ChangeNotifier {
     if (backupRunning || busy || restoring || archiveRecoveryMessage != null) {
       return;
     }
+    if (!includeLocalRecords && session.uploadPaused) return;
     final approvedLink = session.link;
     if (!approvedLink.isVerified) {
       _setBanner('请先连接存储；记录仍仅保存在本机。', error: true);
@@ -689,18 +754,24 @@ class AppModel extends ChangeNotifier {
     // Lock and bind consent before the first await. A slow network query cannot
     // turn approval for destination A into permission to upload to destination B.
     final generation = _connectionGeneration;
+    final intentGeneration = ++_uploadIntentGeneration;
     backupRunning = true;
     _stopBackup = false;
     notifyListeners();
-    void checkScope() {
+    void checkScope({bool allowPaused = false}) {
       if (_connectionGeneration != generation || session.link != approvedLink || archiveRecoveryMessage != null) {
         throw const CosFailure(ConnectionFailure.configuration);
+      }
+      if (!allowPaused && (_stopBackup || _uploadIntentGeneration != intentGeneration)) {
+        throw const _BackupPaused();
       }
     }
 
     try {
+      checkScope();
       if (includeLocalRecords &&
           !_mutate((s) {
+            s.uploadPaused = false;
             final eligibility = s.testBuild ? UploadEligibility.testOnly : UploadEligibility.eligible;
             s.moments = [
               for (final m in s.moments)
@@ -731,8 +802,9 @@ class AppModel extends ChangeNotifier {
         }
         snapshot = pending;
       }
-      await _preferences?.setString('backupRequestedFor', jsonEncode(approvedLink.storageIdentity!.toJson()));
       _backupRequested = true;
+      await _writeUploadIntent(jsonEncode(approvedLink.storageIdentity!.toJson()));
+      checkScope();
       final networks = await _connectivityCheck();
       checkScope();
       if (networks.contains(ConnectivityResult.none) ||
@@ -758,8 +830,10 @@ class AppModel extends ChangeNotifier {
       } else {
         job = await BackupQueue.prepareWithProvider(client, snapshot, now: now);
       }
+      checkScope();
       void checkpoint(BackupJob updated) {
-        checkScope();
+        checkScope(allowPaused: true);
+        if (_stopBackup) updated.pause();
         if (session.deviceID != snapshot.deviceID) {
           throw const CosFailure(ConnectionFailure.configuration);
         }
@@ -788,14 +862,24 @@ class AppModel extends ChangeNotifier {
       checkScope();
       final completed = job.status == BackupJobStatus.completed;
       if (completed) {
-        await _preferences?.remove('backupRequestedFor');
+        await _writeUploadIntent(null);
+        checkScope();
         _backupRequested = false;
         lastSuccessfulBackup = DateTime.now();
         await _preferences?.setInt(_successKey, lastSuccessfulBackup!.millisecondsSinceEpoch);
         storageHealthLabel = '已验证远端副本';
       }
       _setBanner(completed ? '已验证远端副本；原片保留，尚不等于独立恢复验证。' : '备份已暂停，可稍后继续。');
+    } on _BackupPaused {
+      _backupRequested = false;
+      _mutate((s) => s.backupJob?.pause());
+      storageHealthLabel = '备份已暂停';
+      _setBanner('备份已暂停，重新确认后才会继续。');
     } catch (error) {
+      if (_connectionGeneration != generation || session.link != approvedLink) {
+        _backupRequested = false;
+        await _writeUploadIntent(null).catchError((Object _) {});
+      }
       storageHealthLabel = '备份未完成，可重试';
       show(error);
     } finally {

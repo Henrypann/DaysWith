@@ -9,6 +9,8 @@ import 'anniversaries.dart';
 import 'cloud_connect.dart';
 import 'shell.dart';
 import 'storage_center.dart';
+import 'family_space.dart';
+import 'family_qr.dart';
 
 /// Port of MyView.swift and SettingsView.swift.
 class MyScreen extends StatelessWidget {
@@ -99,53 +101,18 @@ class FamilySpacePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = AppScope.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('家庭空间')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          BrandCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '家庭时光',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                const Text('已有爸爸、妈妈的记录继续保留。当前没有通过扫码建立的新家庭成员授权。'),
-                const SizedBox(height: 16),
-                GoldButton(
-                  title: '查看时光',
-                  onPressed: () {
-                    model.selectTab(ShellTab.timeline);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          BrandCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '家庭邀请 · 实验阶段',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 12),
-                const Text('可信授权服务尚未就绪，扫码加入和成员权限管理暂未开放。'),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () => showFamilyJoinAvailability(context),
-                  child: const Text('加入家庭'),
-                ),
-              ],
-            ),
-          ),
-        ],
+    return FamilySpaceScreen(
+      client: model.familyGatewayClient,
+      deviceID: model.session.deviceID,
+      scanInvitation: (context) => Navigator.of(context).push<Uri>(
+        MaterialPageRoute(builder: (_) => const FamilyQrScannerScreen()),
       ),
+      invitationCodeBuilder: (context, invitation) =>
+          FamilyInvitationCode(invitationUrl: invitation),
+      onViewTimeline: () {
+        model.selectTab(ShellTab.timeline);
+        Navigator.of(context).pop();
+      },
     );
   }
 }

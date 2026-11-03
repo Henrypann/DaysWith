@@ -5,6 +5,7 @@ import 'package:jinbao_core/jinbao_core.dart';
 
 import 'app_model.dart';
 import 'screens/shell.dart';
+import 'screens/my.dart' show FamilySpacePage;
 import 'theme.dart';
 
 void main() {
@@ -150,8 +151,13 @@ class _WelcomeViewState extends State<WelcomeView> {
   }
 }
 
-Future<void> showFamilyJoinAvailability(BuildContext context) =>
-    showDialog<void>(
+Future<void> showFamilyJoinAvailability(BuildContext context) {
+  if (AppScope.read(context).familyGatewayClient != null) {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => const FamilySpacePage()),
+    );
+  }
+  return showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('加入家庭暂未开放'),
@@ -166,6 +172,7 @@ Future<void> showFamilyJoinAvailability(BuildContext context) =>
         ],
       ),
     );
+}
 
 class ArchiveRecoveryView extends StatelessWidget {
   final String message;

@@ -11,6 +11,7 @@ class _RestoreStorage extends StorageProvider {
   final objects = <String, Uint8List>{};
   final downloads = <String>[];
   bool corruptDownload = false;
+  Future<void> Function()? beforeDownload;
 
   @override
   StorageIdentity get identity => const StorageIdentity(
@@ -63,6 +64,7 @@ class _RestoreStorage extends StorageProvider {
     required String sha256,
   }) async {
     downloads.add(key);
+    await beforeDownload?.call();
     final bytes = await get(key: key, responseLimit: byteCount);
     final file = File(destination);
     await file.parent.create(recursive: true);
@@ -448,4 +450,36 @@ void main() {
     expect(result.session.remote, isEmpty);
     expect(result.session.timelineEntries(), hasLength(1));
   });
+  test('restore pins the physical parent and returns its canonical receipt path', () async {
+    _publish(storage, ParentIdentity.dad, 1, photoCount: 1);
+    final first = Directory('${sandbox.path}/first')..createSync();
+    final second = Directory('${sandbox.path}/second')..createSync();
+    final alias = Link('${sandbox.path}/current');
+    await alias.create(first.path);
+    final sentinel = File('${second.path}/original')..writeAsStringSync('keep');
+    var switched = false;
+    storage.beforeDownload = () async {
+      if (switched) return;
+      switched = true;
+      await alias.delete();
+      await alias.create(second.path);
+    };
+    final result = await ArchiveRestore.restore(
+      storage,
+      destination: '${alias.path}/recovered',
+      owner: ParentIdentity.dad,
+      deviceID: uuid(99),
+      chains: [
+        RestoreChain(
+          parent: ParentIdentity.dad,
+          prefix: _prefix(ParentIdentity.dad, 1),
+        ),
+      ],
+    );
+    final physicalParent = await first.resolveSymbolicLinks();
+    expect(result.directory, '$physicalParent/recovered');
+    expect(File(result.archivePath).existsSync(), isTrue);
+    expect(Directory('${alias.path}/recovered').existsSync(), isFalse);
+    expect(sentinel.readAsStringSync(), 'keep');
+  }, skip: Platform.isWindows);
 }

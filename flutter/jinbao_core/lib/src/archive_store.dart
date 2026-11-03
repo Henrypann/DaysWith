@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'app_session.dart';
+import 'digest.dart';
 import 'errors.dart';
 import 'json_wire.dart';
 import 'text.dart';
@@ -39,6 +40,20 @@ class ArchiveStore {
       if (old.deviceID != archive.deviceID ||
           (old.identityFolder != null && old.identityFolder != archive.identityFolder)) {
         throw const ContractError('archive.identity', '档案设备或身份发生变化，已保留原数据。');
+      }
+      if (old.schemaVersion < archive.schemaVersion) {
+        // Recovery rotates after normal edits. Keep the pre-upgrade bytes in a
+        // separate, content-addressed copy so subsequent saves cannot erase the
+        // only archive readable by the previous app. No automatic rollback.
+        final hash = Digest.sha256Hex(existing);
+        final snapshot = '$path.schema-${old.schemaVersion}-$hash';
+        final type = FileSystemEntity.typeSync(snapshot, followLinks: false);
+        if (type == FileSystemEntityType.notFound) {
+          _writeAtomic(snapshot, existing);
+        } else if (type != FileSystemEntityType.file ||
+            Digest.sha256Hex(File(snapshot).readAsBytesSync()) != hash) {
+          throw const ContractError('archive.upgrade', '升级前档案副本无法校验，原数据已保留。');
+        }
       }
       _writeAtomic(recoveryPath, existing);
     } else {

@@ -28,6 +28,7 @@ class MemoryDav implements ObjectTransport {
   bool redirect = false;
   bool timeout = false;
   String? poisonHref;
+  Future<void> Function()? beforeGet;
   void seed(String key, List<int> bytes) {
     files['$_root$key'] = Uint8List.fromList(bytes);
     var path = _root;
@@ -105,6 +106,7 @@ class MemoryDav implements ObjectTransport {
       return ObjectResponse(status: existing ? 204 : 201);
     }
     if (request.method == 'GET') {
+      await beforeGet?.call();
       var bytes = files[request.path];
       if (bytes == null) return ObjectResponse(status: 404);
       if (corruptAlbumDownload && !request.path.contains('.dayswith-probe-')) {
@@ -315,6 +317,94 @@ void main() {
       );
     },
   );
+  test('download refuses existing and dangling destination links before network', () async {
+    final directory = await Directory.systemTemp.createTemp('dav-link-test-');
+    try {
+      final bytes = [1, 2, 3];
+      final original = File('${directory.path}/original')
+        ..writeAsBytesSync(bytes);
+      final memory = MemoryDav()..seed(_key, bytes);
+      final storage = provider(memory);
+      for (final target in [original.path, '${directory.path}/missing']) {
+        final link = Link('${directory.path}/download');
+        await link.create(target);
+        await expectLater(
+          storage.getFile(
+            key: _key,
+            destination: link.path,
+            byteCount: bytes.length,
+            sha256: Digest.sha256Hex(bytes),
+          ),
+          throwsA(failure(StorageProviderFailureKind.conflict)),
+        );
+        expect(await link.target(), target);
+        await link.delete();
+      }
+      expect(memory.requests, isEmpty);
+      expect(await original.readAsBytes(), bytes);
+      expect(await File('${directory.path}/missing').exists(), isFalse);
+    } finally {
+      await directory.delete(recursive: true);
+    }
+  }, skip: Platform.isWindows);
+  test('a dangling destination link appearing during download is preserved', () async {
+    final directory = await Directory.systemTemp.createTemp('dav-link-race-');
+    try {
+      final bytes = [1, 2, 3];
+      final link = Link('${directory.path}/download');
+      final missing = '${directory.path}/unique-original';
+      final memory = MemoryDav()
+        ..seed(_key, bytes)
+        ..beforeGet = () => link.create(missing);
+      await expectLater(
+        provider(memory).getFile(
+          key: _key,
+          destination: link.path,
+          byteCount: bytes.length,
+          sha256: Digest.sha256Hex(bytes),
+        ),
+        throwsA(failure(StorageProviderFailureKind.conflict)),
+      );
+      expect(await link.target(), missing);
+      expect(await File(missing).exists(), isFalse);
+      expect(
+        directory.listSync().where((e) => e.path.contains('.dayswith-download-')),
+        isEmpty,
+      );
+    } finally {
+      await directory.delete(recursive: true);
+    }
+  }, skip: Platform.isWindows);
+  test('changing a parent alias cannot redirect a verified download', () async {
+    final directory = await Directory.systemTemp.createTemp('dav-parent-race-');
+    try {
+      final first = Directory('${directory.path}/first')..createSync();
+      final second = Directory('${directory.path}/second')..createSync();
+      final alias = Link('${directory.path}/current');
+      await alias.create(first.path);
+      final bytes = [1, 2, 3];
+      final memory = MemoryDav()
+        ..seed(_key, bytes)
+        ..beforeGet = () async {
+          await alias.delete();
+          await alias.create(second.path);
+        };
+      await expectLater(
+        provider(memory).getFile(
+          key: _key,
+          destination: '${alias.path}/download',
+          byteCount: bytes.length,
+          sha256: Digest.sha256Hex(bytes),
+        ),
+        throwsA(failure(StorageProviderFailureKind.conflict)),
+      );
+      expect(first.listSync(), isEmpty);
+      expect(second.listSync(), isEmpty);
+      expect(await alias.target(), second.path);
+    } finally {
+      await directory.delete(recursive: true);
+    }
+  }, skip: Platform.isWindows);
   test('key traversal is rejected before opening a request', () async {
     final memory = MemoryDav();
     for (final key in [

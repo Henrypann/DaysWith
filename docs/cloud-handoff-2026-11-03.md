@@ -1,5 +1,10 @@
 # DaysWith v3.1 cloud handoff status — 2026-11-03
 
+Historical checkpoint: its Library-transfer blocker was superseded by verified
+Git recovery from `85593e182587cea779d533a35f64083eb30bb347`. This document retains
+the original failed-transfer evidence. Current implementation and blockers are
+recorded in [v3.1 cloud progress](v3.1-cloud-progress.md).
+
 ## Verified cloud state
 
 - Correct repository: https://github.com/Henrypann/DaysWith.git.

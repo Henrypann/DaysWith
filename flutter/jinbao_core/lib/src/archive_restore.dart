@@ -106,13 +106,23 @@ abstract final class ArchiveRestore {
         )) {
       throw const ContractError('restore.owner', '只能明确选择自己的来源用于本机编辑。');
     }
-    final target = Directory(destination).absolute;
-    if (await FileSystemEntity.type(target.path, followLinks: false) !=
+    final requested = Directory(destination).absolute;
+    if (await FileSystemEntity.type(requested.path, followLinks: false) !=
         FileSystemEntityType.notFound) {
       throw const ContractError('restore.destination', '恢复目录必须不存在，现有资料不会被覆盖。');
     }
-    if (!await target.parent.exists()) {
+    if (!await requested.parent.exists()) {
       throw const ContractError('restore.destination', '请先创建独立恢复目录的父目录。');
+    }
+    // Keep staging, publication and the returned receipt on one resolved
+    // filesystem path, even if a parent directory alias changes while the
+    // remote originals are being downloaded.
+    final parent = await requested.parent.resolveSymbolicLinks();
+    final name = requested.uri.pathSegments.where((s) => s.isNotEmpty).last;
+    final target = Directory('$parent${Platform.pathSeparator}$name');
+    if (await FileSystemEntity.type(target.path, followLinks: false) !=
+        FileSystemEntityType.notFound) {
+      throw const ContractError('restore.destination', '恢复目录已被占用，现有资料不会被覆盖。');
     }
     final staging = await target.parent.createTemp('.dayswith-restore-');
     var published = false;

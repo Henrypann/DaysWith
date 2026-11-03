@@ -186,10 +186,17 @@ abstract final class BackupQueue {
   }) async {
     final plan = BackupPlan.manifest(session, now: now);
     final destination = session.link.storageIdentity;
-    if (client.identity.prefix != plan.prefix ||
-        destination == null ||
-        client.identity.providerId != destination.providerId ||
-        client.identity.endpoint != destination.endpoint) {
+    // Connection metadata describes the storage root. Bind the job to its
+    // concrete writer namespace as well as the account that owns that root.
+    final expected = destination == null
+        ? null
+        : StorageIdentity(
+            providerId: destination.providerId,
+            endpoint: destination.endpoint,
+            prefix: plan.prefix,
+            accountScope: destination.accountScope,
+          );
+    if (expected == null || client.identity != expected) {
       throw const CosFailure(ConnectionFailure.configuration);
     }
     final previous = await FamilyReader.latestStorage(client, plan.prefix);
@@ -480,11 +487,18 @@ abstract final class BackupQueue {
 
   static void validateWithProvider(BackupJob job, AppSession session, StorageProvider client) {
     final destination = session.link.storageIdentity;
+    final expected = destination == null
+        ? null
+        : StorageIdentity(
+            providerId: destination.providerId,
+            endpoint: destination.endpoint,
+            prefix: session.writerPrefix(),
+            accountScope: destination.accountScope,
+          );
     const configuration = CosFailure(ConnectionFailure.configuration);
     if (!session.link.isVerified ||
-        destination == null ||
-        destination.providerId != job.storageIdentity.providerId ||
-        destination.endpoint != job.storageIdentity.endpoint ||
+        expected == null ||
+        expected != job.storageIdentity ||
         session.testBuild != job.testBuild ||
         session.deviceID.toUpperCase() != job.writerDeviceID.toUpperCase() ||
         session.writerPrefix() != job.prefix ||

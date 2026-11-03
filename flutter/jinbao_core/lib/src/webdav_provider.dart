@@ -265,23 +265,37 @@ class WebDavStorageProvider extends StorageProvider {
   }) async {
     final path = _path(key);
     _validateFacts(byteCount, sha256);
+    final requested = File(destination).absolute;
+    // exists() follows links and reports a dangling link as absent. Never
+    // accept a link as an independently verified local copy, or replace one.
+    await _validateDownloadDestination(requested.path);
+    await requested.parent.create(recursive: true);
+    // Pin the actual parent before the network await. A directory alias may
+    // change while a large original is downloading; do not publish via a
+    // different alias after verification.
+    final parent = await requested.parent.resolveSymbolicLinks();
+    final name = requested.uri.pathSegments.last;
+    final target = File('$parent${Platform.pathSeparator}$name');
+    await _validateDownloadDestination(target.path);
     final directory = await Directory.systemTemp.createTemp(
       'dayswith-dav-download-',
     );
     final staging = File('${directory.path}/body');
     try {
       await _downloadVerified(path, staging.path, byteCount, sha256);
-      final target = File(destination);
-      if (await target.exists()) {
+      await _validateDownloadParent(requested.parent, parent);
+      final existing = await _validateDownloadDestination(target.path);
+      if (existing == FileSystemEntityType.file) {
         final actual = await Digest.sha256File(
-          destination,
+          target.path,
           maximumBytes: byteCount,
         );
         if (actual.byteCount != byteCount || actual.hash != sha256) {
           throw _integrity;
         }
+        await _validateDownloadParent(requested.parent, parent);
+        await _validateDownloadDestination(target.path);
       } else {
-        await target.parent.create(recursive: true);
         // Copy into the target filesystem first; publish by rename after hashing.
         final sibling = File(
           '${target.parent.path}/.dayswith-download-${newUuid()}',
@@ -295,12 +309,14 @@ class WebDavStorageProvider extends StorageProvider {
           if (copied.byteCount != byteCount || copied.hash != sha256) {
             throw _integrity;
           }
-          if (await target.exists()) {
+          await _validateDownloadParent(requested.parent, parent);
+          if (await _validateDownloadDestination(target.path) !=
+              FileSystemEntityType.notFound) {
             throw const StorageProviderFailure(
               StorageProviderFailureKind.conflict,
             );
           }
-          await sibling.rename(destination);
+          await sibling.rename(target.path);
         } finally {
           if (await sibling.exists()) await sibling.delete();
         }
@@ -308,6 +324,25 @@ class WebDavStorageProvider extends StorageProvider {
     } finally {
       await directory.delete(recursive: true);
     }
+  }
+
+  Future<FileSystemEntityType> _validateDownloadDestination(String path) async {
+    final type = await FileSystemEntity.type(path, followLinks: false);
+    if (type != FileSystemEntityType.notFound &&
+        type != FileSystemEntityType.file) {
+      throw const StorageProviderFailure(StorageProviderFailureKind.conflict);
+    }
+    return type;
+  }
+
+  Future<void> _validateDownloadParent(Directory requested, String expected) async {
+    try {
+      if (await requested.resolveSymbolicLinks() == expected) return;
+    } on FileSystemException {
+      // A removed/replaced parent also invalidates publication. Do not expose
+      // the local filesystem exception through the provider contract.
+    }
+    throw const StorageProviderFailure(StorageProviderFailureKind.conflict);
   }
 
   @override

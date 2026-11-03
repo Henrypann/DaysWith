@@ -435,6 +435,7 @@ class AppSession {
   List<LocalAnniversary> anniversaries;
   List<RemoteAnniversary> remoteAnniversaries;
   BackupJob? backupJob;
+  bool uploadPaused;
   Map<String, String> committedDrafts;
 
   AppSession({
@@ -448,6 +449,7 @@ class AppSession {
     List<LocalAnniversary>? anniversaries,
     List<RemoteAnniversary>? remoteAnniversaries,
     this.backupJob,
+    this.uploadPaused = false,
     Map<String, String>? committedDrafts,
   }) : moments = moments ?? [],
        remote = remote ?? [],
@@ -932,6 +934,7 @@ class PersistedArchive {
   List<LocalAnniversary> anniversaries;
   List<RemoteAnniversary> remoteAnniversaries;
   BackupJob? backupJob;
+  bool uploadPaused;
   Map<String, String> committedDrafts;
 
   PersistedArchive._({
@@ -946,6 +949,7 @@ class PersistedArchive {
     required this.anniversaries,
     required this.remoteAnniversaries,
     required this.backupJob,
+    required this.uploadPaused,
     required this.committedDrafts,
   });
 
@@ -961,6 +965,7 @@ class PersistedArchive {
     anniversaries: session.anniversaries,
     remoteAnniversaries: session.remoteAnniversaries,
     backupJob: session.backupJob,
+    uploadPaused: session.uploadPaused,
     committedDrafts: session.committedDrafts,
   );
 
@@ -987,6 +992,7 @@ class PersistedArchive {
       anniversaries: (v.optionalList('anniversaries') ?? const []).map(LocalAnniversary.fromJson).toList(),
       remoteAnniversaries: (v.optionalList('remoteAnniversaries') ?? const []).map(RemoteAnniversary.fromJson).toList(),
       backupJob: v.has('backupJob') ? BackupJob.fromJson(v.raw('backupJob')) : null,
+      uploadPaused: v.has('uploadPaused') ? v.boolean('uploadPaused') : false,
       committedDrafts: committed == null ? {} : {for (final key in committed.map.keys) key: committed.string(key)},
     );
   }
@@ -1003,6 +1009,7 @@ class PersistedArchive {
     'anniversaries': anniversaries.map((a) => a.toJson()).toList(),
     'remoteAnniversaries': remoteAnniversaries.map((a) => a.toJson()).toList(),
     if (backupJob != null) 'backupJob': backupJob!.toJson(),
+    if (uploadPaused) 'uploadPaused': true,
     'committedDrafts': Map<String, Object?>.of(committedDrafts),
   };
 
@@ -1017,6 +1024,7 @@ class PersistedArchive {
     anniversaries: anniversaries,
     remoteAnniversaries: remoteAnniversaries,
     backupJob: backupJob,
+    uploadPaused: uploadPaused,
     committedDrafts: committedDrafts,
   );
 

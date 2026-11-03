@@ -28,4 +28,6 @@ export 'src/cos_storage_provider.dart';
 export 'src/webdav_provider.dart';
 export 'src/family.dart';
 export 'src/family_invitations.dart';
+export 'src/family_gateway_client.dart';
+export 'src/family_archive.dart';
 export 'src/archive_restore.dart';
