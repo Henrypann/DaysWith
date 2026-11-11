@@ -6,9 +6,12 @@ import 'package:jinbao_core/jinbao_core.dart';
 
 import '../app_model.dart';
 import '../main.dart';
+import '../memories.dart';
 import '../theme.dart';
 import '../widgets/waterfall.dart';
 import 'anniversaries.dart';
+import 'child_profile.dart';
+import 'growth_card.dart';
 import 'media_viewer.dart';
 import 'shell.dart';
 
@@ -58,9 +61,10 @@ class _TimelineScreenState extends State<TimelineScreen> {
       return CustomScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         slivers: [
-          SliverToBoxAdapter(child: _header()),
+          SliverToBoxAdapter(child: _header(model)),
           if (_searchVisible) SliverToBoxAdapter(child: _searchField()),
           if (!_searchVisible) const SliverToBoxAdapter(child: AnniversaryReminder()),
+          if (!_searchVisible) const SliverToBoxAdapter(child: MemoriesStrip()),
           if (draft != null)
             SliverToBoxAdapter(
               child: Padding(
@@ -108,7 +112,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
     });
   }
 
-  Widget _header() => Padding(
+  Widget _header(AppModel model) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [
           Expanded(
@@ -119,7 +123,22 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 Text('DaysWith', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
               ]),
               const SizedBox(height: 8),
-              Text(ageLabel(DateTime.now()), style: const TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
+              if (model.child != null)
+                Text(ageLabel(DateTime.now(), child: model.child),
+                    style: const TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary))
+              else
+                InkWell(
+                  onTap: () => openChildProfile(context),
+                  child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                    Flexible(
+                      child: Text('添加宝宝生日，每条记录都标上年龄',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
+                    ),
+                    Icon(Icons.chevron_right, size: 16, color: JinbaoColors.inkSecondary),
+                  ]),
+                ),
             ]),
           ),
           IconButton(
@@ -221,6 +240,7 @@ class MomentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasMedia = _hasMedia;
+    final age = AppScope.of(context).child?.shortAgeAt(entry.occurredAt);
     final details = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(cardDate(entry), style: const TextStyle(fontSize: 12, color: JinbaoColors.inkSecondary)),
       const SizedBox(height: 8),
@@ -234,7 +254,7 @@ class MomentCard extends StatelessWidget {
             maxLines: 6, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, color: JinbaoColors.noteInk)),
       ],
       const SizedBox(height: 8),
-      ParentBadge(entry.parent),
+      Wrap(spacing: 6, runSpacing: 6, children: [ParentBadge(entry.parent), if (age != null) AgeBadge(age)]),
       if (entry.readOnly || entry.provenanceLabel != null) ...[
         const SizedBox(height: 8),
         Text([if (entry.readOnly) '只读', ?entry.provenanceLabel].join(' · '),
@@ -321,7 +341,11 @@ class PhotoThumbnail extends StatelessWidget {
     final relative = model.previewPath(photo);
     final path = relative == null ? null : model.filePath(relative);
     if (path != null && File(path).existsSync()) {
-      return Image.file(File(path), fit: fit, width: double.infinity, semanticLabel: '照片',
+      return Image.file(File(path),
+          fit: fit,
+          width: double.infinity,
+          height: fit == BoxFit.cover ? double.infinity : null,
+          semanticLabel: '照片',
           errorBuilder: (_, _, _) => const _Placeholder(text: '这张照片暂时无法读取'));
     }
     final reference = photo.remote;
@@ -381,6 +405,15 @@ class MomentDetailPage extends StatelessWidget {
     return '${parts.year}年${JinbaoCalendar.dayTitle(parts)} · ${clockText(entry.occurredAt)}';
   }
 
+  String? _ageLine(AppModel model, TimelineEntry entry) {
+    final child = model.child;
+    if (child == null || entry.occurredAt <= 0) return null;
+    final parts = JinbaoCalendar.parts(entry.occurredAt, const DeviceZone());
+    final age = child.ageOn(parts);
+    if (age == null) return null;
+    return '${child.nickname} $age · 第 ${child.dayNumberOn(parts)} 天';
+  }
+
   String _viewLabel(TimelinePhoto photo, int index) => switch (photo.kind) {
         'video' => '播放视频',
         'livePhoto' || 'motionPhoto' => '查看动态照片',
@@ -394,12 +427,18 @@ class MomentDetailPage extends StatelessWidget {
     if (entry == null) {
       return Scaffold(appBar: AppBar(title: const Text('小日常')), body: const Center(child: Text('这条记录已经不在时光里。')));
     }
+    final ageLine = _ageLine(model, entry);
     return Scaffold(
       appBar: AppBar(
         title: const Text('小日常'),
         leading: TextButton(onPressed: () => Navigator.pop(context), child: const Text('关闭')),
         leadingWidth: 72,
         actions: [
+          IconButton(
+            tooltip: '生成成长卡片',
+            icon: const Icon(Icons.ios_share),
+            onPressed: () => openGrowthCard(context, entry.id),
+          ),
           if (!entry.readOnly)
             PopupMenuButton<String>(
               tooltip: '记录操作',
@@ -452,11 +491,15 @@ class MomentDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
         ],
-        ParentBadge(entry.parent),
+        Align(alignment: Alignment.centerLeft, child: ParentBadge(entry.parent)),
         const SizedBox(height: 8),
         Text(entry.displayTitle, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Text(_detailDate(entry), style: const TextStyle(fontSize: 12, color: JinbaoColors.inkSecondary)),
+        if (ageLine != null) ...[
+          const SizedBox(height: 8),
+          Align(alignment: Alignment.centerLeft, child: AgeBadge(ageLine)),
+        ],
         if (entry.mediaCount > 0) ...[
           const SizedBox(height: 8),
           Row(children: [
@@ -481,6 +524,77 @@ class MomentDetailPage extends StatelessWidget {
             child: const Text('这是另一台设备或另一位家长留下的，这里只读。', style: TextStyle(color: JinbaoColors.inkSecondary)),
           ),
         ],
+      ]),
+    );
+  }
+}
+/// DaysWith 4.0 「那年今天」: earlier records from this day, shown above the months.
+class MemoriesStrip extends StatelessWidget {
+  const MemoriesStrip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final model = AppScope.of(context);
+    final today = JinbaoCalendar.parts(AppModel.now, const DeviceZone());
+    final memories = Memories.onThisDay(model.session.timelineEntries(), today);
+    if (memories.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: BrandCard(
+        padding: 14,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const Icon(Icons.history, size: 18),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('那年今天', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600))),
+            Text('${memories.length}段回忆', style: const TextStyle(fontSize: 12, color: JinbaoColors.inkSecondary)),
+          ]),
+          for (final memory in memories.take(3)) ...[
+            const SizedBox(height: 10),
+            _MemoryRow(memory: memory),
+          ],
+        ]),
+      ),
+    );
+  }
+}
+
+class _MemoryRow extends StatelessWidget {
+  final Memory memory;
+  const _MemoryRow({required this.memory});
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = memory.entry;
+    final photo = entry.photos.firstOrNull;
+    final age = AppScope.of(context).child?.shortAgeAt(entry.occurredAt);
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => openMomentDetail(context, entry.id),
+      child: Row(children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            width: 64,
+            height: 64,
+            color: photo == null ? JinbaoColors.goldSoft : JinbaoColors.photoPlaceholder,
+            child: photo == null
+                ? const Icon(Icons.edit_note, color: JinbaoColors.ink)
+                : PhotoThumbnail(photo: photo, allowsRetry: false, fit: BoxFit.cover),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(memory.label, style: const TextStyle(fontSize: 12, color: JinbaoColors.inkSecondary)),
+            const SizedBox(height: 4),
+            Text(entry.displayTitle,
+                maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 6),
+            Wrap(spacing: 6, children: [ParentBadge(entry.parent), if (age != null) AgeBadge('那时 $age')]),
+          ]),
+        ),
+        const Icon(Icons.chevron_right, size: 16, color: JinbaoColors.inkSecondary),
       ]),
     );
   }

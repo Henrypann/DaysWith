@@ -34,3 +34,6 @@ ios-app/.swiftpm/
 # Python tooling output
 __pycache__/
 *.py[cod]
+
+/promo-tools/
+/promo/out/

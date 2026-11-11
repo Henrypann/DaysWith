@@ -6,6 +6,7 @@ import 'package:jinbao_core/jinbao_core.dart';
 import 'app_model.dart';
 import 'screens/cloud_connect.dart';
 import 'screens/shell.dart';
+import 'screens/welcome.dart';
 import 'theme.dart';
 
 void main() {
@@ -77,8 +78,9 @@ class RootView extends StatelessWidget {
     }
     final recovery = model.archiveRecoveryMessage;
     if (recovery != null) return ArchiveRecoveryView(message: recovery);
+    if (model.showsTimeline) return const MainShell();
     return switch (model.session.phase) {
-      AppPhase.chooseIdentity => const IdentityView(),
+      AppPhase.chooseIdentity => const WelcomeFlow(),
       AppPhase.connectCloud => const Scaffold(body: SafeArea(child: CloudConnectView(mandatory: true))),
       AppPhase.timeline => const MainShell(),
     };

@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'android_legacy_upgrade.dart';
+import 'child_profile.dart';
 import 'credential_store.dart';
 import 'media_import.dart';
 
@@ -45,6 +46,19 @@ class AppModel extends ChangeNotifier {
 
   final CredentialStore _credentials = CredentialStore();
   late final String directory;
+
+  AppModel();
+
+  /// A ready model over [session] whose archive and media live in [directory].
+  /// Used by widget tests and the promo renderer; nothing touches the network.
+  AppModel.forSession(this.session,
+      {required this.directory, this.child, this.localFirst = false, Set<String>? localFirstRecords}) {
+    if (localFirstRecords != null) this.localFirstRecords.addAll(localFirstRecords);
+    bucket = session.link.bucket ?? bucket;
+    region = session.link.region ?? region;
+    _store = ArchiveStore('$directory/archive.json');
+    ready = true;
+  }
   late ArchiveStore _store;
   late AppSession session;
 
@@ -58,6 +72,15 @@ class AppModel extends ChangeNotifier {
   ShellTab tab = ShellTab.timeline;
   bool backupRunning = false;
   bool allowCellularOriginals = false;
+
+  /// 4.0: the child profile and the local-first choice live in this phone's preferences.
+  ChildProfile? child;
+  bool localFirst = false;
+
+  /// IDs of records made while recording on this phone without a connection. Only these may
+  /// later join a backup; imported, placeholder and test records never do.
+  final Set<String> localFirstRecords = {};
+  bool _disposed = false;
   final Map<String, PreviewLoad> previewLoads = {};
   final Map<String, PreviewLoad> originalLoads = {};
 
@@ -77,6 +100,10 @@ class AppModel extends ChangeNotifier {
     _store = ArchiveStore('$directory/archive.json');
     _preferences = await SharedPreferences.getInstance();
     allowCellularOriginals = _preferences?.getBool('allowCellularOriginals') ?? false;
+    localFirst = _preferences?.getBool('localFirst') ?? false;
+    localFirstRecords.addAll(_preferences?.getStringList('localFirstRecords') ?? const []);
+    child = ChildProfile.decode(
+        nickname: _preferences?.getString('childNickname'), birthday: _preferences?.getString('childBirthday'));
     AppSession? loaded;
     try {
       if (Platform.isAndroid) {
@@ -154,6 +181,78 @@ class AppModel extends ChangeNotifier {
       busy = false;
       notifyListeners();
     }
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    // Work that finishes after the app shell is gone must not reach removed listeners.
+    _disposed = true;
+    _automaticBackup?.cancel();
+    _stopBackup = true;
+    _connectionGeneration++;
+    super.dispose();
+  }
+
+  /// Whether the timeline is shown: connected, or the user chose to record on this phone first.
+  bool get showsTimeline => session.phase == AppPhase.timeline || (session.identity != null && localFirst);
+
+  Future<void> chooseLocalFirst() async {
+    localFirst = true;
+    banner = null;
+    notifyListeners();
+    await _preferences?.setBool('localFirst', true);
+  }
+
+  Future<bool> saveChild({required String nickname, required DateParts birthday}) async {
+    final name = swiftTrim(nickname);
+    final today = JinbaoCalendar.parts(now, const DeviceZone());
+    if (name.isEmpty || name.length > ChildProfile.maxNicknameLength) {
+      show(const ContractError('child', '请填写 1–12 字的小名。'));
+      return false;
+    }
+    if (JinbaoCalendar.compare(birthday, today) > 0) {
+      show(const ContractError('child', '生日不能晚于今天。'));
+      return false;
+    }
+    child = ChildProfile(nickname: name, birthday: birthday);
+    notifyListeners();
+    await _preferences?.setString('childNickname', name);
+    await _preferences?.setString('childBirthday', child!.storedBirthday);
+    return true;
+  }
+
+  Future<void> clearChild() async {
+    child = null;
+    notifyListeners();
+    await _preferences?.remove('childNickname');
+    await _preferences?.remove('childBirthday');
+  }
+
+  bool get _recordingLocalFirst => localFirst && session.link is CloudMissing;
+
+  void _rememberLocalFirst(String id) {
+    if (localFirstRecords.add(id)) _preferences?.setStringList('localFirstRecords', localFirstRecords.toList());
+  }
+
+  /// Records made in local-first mode that can still be added to the backup.
+  int get adoptableCount => session.link is CloudVerified ? session.adoptableCount(localFirstRecords) : 0;
+
+  /// After explicit consent, the records made in local-first mode join the verified backup scope.
+  int adoptLocalRecords() {
+    if (busy || backupRunning) {
+      show(const ContractError('backup', '请等待当前备份或验证完成后再试。'));
+      return 0;
+    }
+    var adopted = 0;
+    if (!_mutate((s) => adopted = s.adoptLocalOnlyRecords(localFirstRecords))) return 0;
+    _setBanner(adopted == 0 ? '没有可以加入备份的本机记录。' : '已把 $adopted 条本机记录加入备份。');
+    _scheduleAutomaticBackup();
+    return adopted;
   }
 
   void selectTab(ShellTab value) {
@@ -313,7 +412,10 @@ class AppModel extends ChangeNotifier {
       MediaImport.store(source: path, filename: filename, provenance: provenance, directory: directory);
 
   bool commitDraft() {
-    if (!_mutate((s) => s.commitDraft(now: now))) return false;
+    final local = _recordingLocalFirst && session.draft?.originalMomentID == null;
+    String? saved;
+    if (!_mutate((s) => saved = s.commitDraft(now: now).id)) return false;
+    if (local && saved != null) _rememberLocalFirst(saved!);
     tab = ShellTab.timeline;
     notifyListeners();
     _scheduleAutomaticBackup();
@@ -329,7 +431,10 @@ class AppModel extends ChangeNotifier {
   }
 
   bool saveAnniversary({String? id, required String title, required String date}) {
-    final ok = _mutate((s) => s.saveAnniversary(id: id, title: title, date: date, now: now));
+    final local = _recordingLocalFirst && id == null;
+    String? saved;
+    final ok = _mutate((s) => saved = s.saveAnniversary(id: id, title: title, date: date, now: now).id);
+    if (ok && local && saved != null) _rememberLocalFirst(saved!);
     if (ok) _scheduleAutomaticBackup();
     return ok;
   }
@@ -425,7 +530,7 @@ class AppModel extends ChangeNotifier {
   }
 
   String get backupStatusDetail {
-    if (session.link is! CloudVerified) return '占位或未连接时不会上传；仅本地记录以后也不会自动上传。';
+    if (session.link is! CloudVerified) return '未连接或占位连接时不会上传。连接后，可以选择把本机记录加入备份。';
     final job = session.backupJob;
     if (job == null || !_backupMatchesScope(job)) return '新建的可备份记录会在应用打开时自动备份。';
     return job.lastError ?? '原件已核验 ${job.completedCount} / ${job.totalCount}；本机记录始终保留。';
