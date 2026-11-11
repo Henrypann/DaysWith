@@ -113,6 +113,29 @@ class _CloudConnectViewState extends State<CloudConnectView> with WidgetsBinding
           ParentBadge(identity),
         ]),
       ],
+      if (widget.mandatory) ...[
+        const SizedBox(height: 16),
+        BrandCard(
+          color: JinbaoColors.goldSoft,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('也可以先不连接', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 6),
+            const Text('记录先保存在这台手机，不会上传。之后可在「我的－云备份」连接，再选择把本机记录加入备份。',
+                style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: model.busy ? null : model.chooseLocalFirst,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: JinbaoColors.ink,
+                minimumSize: const Size.fromHeight(48),
+                side: const BorderSide(color: JinbaoColors.ink),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('先在这台手机记录', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            ),
+          ]),
+        ),
+      ],
       const SizedBox(height: 16),
       if (!showForm)
         BrandCard(child: _connectedActions(model))
@@ -232,6 +255,30 @@ class _CloudConnectViewState extends State<CloudConnectView> with WidgetsBinding
       else ...[
         GoldButton(title: '立即备份 / 重试', enabled: !model.busy, onPressed: model.backupNow),
         TextButton(onPressed: model.backupNow, child: const Text('继续未完成的备份')),
+      ],
+      if (model.adoptableCount > 0) ...[
+        const SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: JinbaoColors.goldSoft, borderRadius: BorderRadius.circular(12)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${model.adoptableCount}条记录仅保存在这台手机', style: const TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            const Text('它们是在连接云存储之前留下的，不会自动上传。', style: TextStyle(fontSize: 13, color: JinbaoColors.inkSecondary)),
+            TextButton(
+              onPressed: () async {
+                if (await confirmAction(context,
+                    title: '把本机记录加入备份？',
+                    message: '这些记录和原件会上传到你连接的存储桶，另一台手机连接后可以读取。加入后不能改回仅本机。',
+                    confirm: '加入备份')) {
+                  model.adoptLocalRecords();
+                }
+              },
+              child: const Text('加入云备份', style: TextStyle(fontWeight: FontWeight.w600)),
+            ),
+          ]),
+        ),
       ],
       TextButton(onPressed: model.refreshRemote, child: const Text('重新读取家庭时光')),
       TextButton(

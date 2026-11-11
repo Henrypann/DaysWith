@@ -443,6 +443,62 @@ class AppSession {
     return UploadEligibility.localOnly;
   }
 
+  bool _named(Set<String> ids, String id) => ids.any((other) => caseInsensitiveEquals(other, id));
+
+  /// How many of the records named in [ids] are still local-only and signed by this phone.
+  int adoptableCount(Set<String> ids) =>
+      moments.where((m) => m.parent == identity && m.uploadEligibility == UploadEligibility.localOnly && _named(ids, m.id)).length +
+      anniversaries
+          .where((a) => a.owner == identity && a.uploadEligibility == UploadEligibility.localOnly && _named(ids, a.id))
+          .length;
+
+  /// Local-first: after the user explicitly agrees, the records named in [ids] join the backup
+  /// scope of the current verified connection. Never automatic, never for other owners.
+  ///
+  /// Only the caller knows which records were made in local-first mode. Everything else that
+  /// is local-only stays put: records imported from an older install may already exist in the
+  /// cloud under another chain, and placeholder or test records were never meant to upload.
+  int adoptLocalOnlyRecords(Set<String> ids) {
+    if (link is! CloudVerified) throw const ContractError('backup', '请先连接并验证云存储。');
+    final target = newUploadEligibility;
+    var adopted = 0;
+    for (var i = 0; i < moments.length; i++) {
+      final moment = moments[i];
+      if (moment.parent != identity || moment.uploadEligibility != UploadEligibility.localOnly || !_named(ids, moment.id)) {
+        continue;
+      }
+      moments[i] = LocalMoment(
+        id: moment.id,
+        title: moment.title,
+        note: moment.note,
+        occurredAt: moment.occurredAt,
+        createdAt: moment.createdAt,
+        updatedAt: moment.updatedAt,
+        revision: moment.revision,
+        trashedAt: moment.trashedAt,
+        parent: moment.parent,
+        assets: moment.assets.map((a) => a.copy()).toList(),
+        uploadEligibility: target,
+      );
+      adopted++;
+    }
+    for (var i = 0; i < anniversaries.length; i++) {
+      final item = anniversaries[i];
+      if (item.owner != identity || item.uploadEligibility != UploadEligibility.localOnly || !_named(ids, item.id)) continue;
+      anniversaries[i] = LocalAnniversary(
+        id: item.id,
+        owner: item.owner,
+        title: item.title,
+        date: item.date,
+        deletedAt: item.deletedAt,
+        updatedAt: item.updatedAt,
+        uploadEligibility: target,
+      );
+      adopted++;
+    }
+    return adopted;
+  }
+
   /// Reopening the composer resumes its durable draft; it never silently discards work.
   void beginDraft({required int now}) {
     if (draft != null) return;

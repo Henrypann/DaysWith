@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../app_model.dart';
 import '../main.dart';
 import '../theme.dart';
+import 'child_profile.dart';
 import 'cloud_connect.dart';
 import 'shell.dart';
 
@@ -45,6 +46,12 @@ class MyScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           clipBehavior: Clip.antiAlias,
           child: Column(children: [
+            FeatureRow(
+                title: '宝宝档案',
+                subtitle: model.child == null ? '填写生日，每条记录都标上年龄' : ageLabel(DateTime.now(), child: model.child),
+                icon: Icons.cake_outlined,
+                onTap: () => openChildProfile(context)),
+            const Divider(),
             FeatureRow(
                 title: '家庭时光',
                 subtitle: '爸爸和妈妈一起留下的记录',

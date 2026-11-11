@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jinbao_core/jinbao_core.dart';
 
+import 'child_profile.dart';
+
 /// Same palette and components as ios-app/Jinbao365/Theme.swift, so both platforms look alike.
 abstract final class JinbaoColors {
   static const background = Color(0xFFF4F4F2);
@@ -40,13 +42,15 @@ ThemeData jinbaoTheme() {
     scaffoldBackgroundColor: JinbaoColors.background,
   );
   return base.copyWith(
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: JinbaoColors.background,
       foregroundColor: JinbaoColors.ink,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
-      titleTextStyle: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: JinbaoColors.ink),
+      // Derived from the text theme, so titles keep the same typeface as the rest of the app.
+      titleTextStyle:
+          base.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w600, color: JinbaoColors.ink),
     ),
     textTheme: base.textTheme.apply(bodyColor: JinbaoColors.ink, displayColor: JinbaoColors.ink),
     dividerTheme: const DividerThemeData(color: JinbaoColors.separator, space: 1, thickness: 1),
@@ -65,11 +69,25 @@ ThemeData jinbaoTheme() {
   );
 }
 
-String ageLabel(DateTime now) {
+/// Header line under the wordmark: the child's age today, or the tagline without a profile.
+String ageLabel(DateTime now, {ChildProfile? child}) {
   final parts = JinbaoCalendar.parts(now.millisecondsSinceEpoch, const DeviceZone());
-  final age = JinbaoCalendar.age(parts);
-  if (age == null) return '留住一起度过的日子';
-  return '${age.years}岁${age.months}个月${age.days}天';
+  final age = child?.ageOn(parts);
+  if (child == null || age == null) return '留住一起度过的日子';
+  return '${child.nickname} · $age';
+}
+
+/// Small age tag shown beside the signature on cards.
+class AgeBadge extends StatelessWidget {
+  final String text;
+  const AgeBadge(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(color: JinbaoColors.goldSoft, borderRadius: BorderRadius.circular(999)),
+        child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: JinbaoColors.ink)),
+      );
 }
 
 String twoDigits(int value) => value.toString().padLeft(2, '0');
@@ -129,11 +147,14 @@ class BrandCard extends StatelessWidget {
   const BrandCard({super.key, required this.child, this.padding = 16, this.color = JinbaoColors.surface});
 
   @override
-  Widget build(BuildContext context) => Container(
+  // A Material, so list rows and switches inside a card paint their ink on the card itself.
+  Widget build(BuildContext context) => SizedBox(
         width: double.infinity,
-        padding: EdgeInsets.all(padding),
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
-        child: child,
+        child: Material(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(padding: EdgeInsets.all(padding), child: child),
+        ),
       );
 }
 
@@ -155,7 +176,7 @@ class GoldButton extends StatelessWidget {
             disabledForegroundColor: JinbaoColors.inkSecondary,
             minimumSize: const Size.fromHeight(52),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
           ),
           child: Text(title),
         ),
